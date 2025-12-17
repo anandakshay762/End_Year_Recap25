@@ -1,1 +1,5 @@
 /.claude
+node_modules/.cache/
+node_modules/.remotion/
+out/
+*.log

@@ -1,12 +1,30 @@
-import React, { CSSProperties } from 'remotion';
-import { staticFile } from 'remotion';
+import React, { CSSProperties } from 'react';
+import { staticFile, interpolate } from 'remotion';
 
 interface LivesMovedProps {
   text: string;
   style?: CSSProperties;
+  animationProgress?: number;
 }
 
-export const LivesMoved: React.FC<LivesMovedProps> = ({ text, style }) => {
+export const LivesMoved: React.FC<LivesMovedProps> = ({ text, style, animationProgress = 1 }) => {
+  // Extract the number from the text (e.g., "350 lives moved forward because of you.")
+  const match = text.match(/^(\d+)/);
+  const numericValue = match ? parseInt(match[1]) : 0;
+
+  // Animate the number from 0 to the target value
+  const animatedValue = Math.floor(interpolate(
+    animationProgress,
+    [0, 1],
+    [0, numericValue],
+    {
+      extrapolateLeft: 'clamp',
+      extrapolateRight: 'clamp',
+    }
+  ));
+
+  // Replace the number in the original text with the animated value
+  const displayText = text.replace(/^\d+/, animatedValue.toString());
   const bannerStyle: CSSProperties = {
     position: 'relative',
     width: '876px',
@@ -51,7 +69,7 @@ export const LivesMoved: React.FC<LivesMovedProps> = ({ text, style }) => {
       </style>
       <div style={bannerStyle} data-node-id="178:558">
         <p style={textStyle} data-node-id="178:556">
-          {text}
+          {displayText}
         </p>
       </div>
     </>

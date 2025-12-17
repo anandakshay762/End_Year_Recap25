@@ -1,4 +1,4 @@
-import React, { CSSProperties } from 'remotion';
+import React, { CSSProperties } from 'react';
 import { staticFile } from 'remotion';
 
 interface TitleProps {
@@ -33,7 +33,7 @@ export const Title: React.FC<TitleProps> = ({ text, style }) => {
     lineHeight: 1.2,
     letterSpacing: '-0.5px',
     whiteSpace: 'pre-wrap',
-    textAlign: 'left',
+    textAlign: 'center',
     width: '100%',
   };
 

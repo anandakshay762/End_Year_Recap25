@@ -1,13 +1,30 @@
-import React, { CSSProperties } from 'remotion';
-import { staticFile } from 'remotion';
+import React, { CSSProperties } from 'react';
+import { staticFile, interpolate } from 'remotion';
 
 interface DmProps {
   value: string;
   label: string;
   style?: CSSProperties;
+  animationProgress?: number;
 }
 
-export const Dm: React.FC<DmProps> = ({ value, label, style }) => {
+export const Dm: React.FC<DmProps> = ({ value, label, style, animationProgress = 1 }) => {
+  // Parse the numeric value from the string (remove commas)
+  const numericValue = parseInt(value.replace(/,/g, '')) || 0;
+
+  // Animate the number from 0 to the target value
+  const animatedValue = Math.floor(interpolate(
+    animationProgress,
+    [0, 1],
+    [0, numericValue],
+    {
+      extrapolateLeft: 'clamp',
+      extrapolateRight: 'clamp',
+    }
+  ));
+
+  // Format the number with commas
+  const displayValue = animatedValue.toLocaleString();
   const cardStyle: CSSProperties = {
     position: 'relative',
     width: '456px',
@@ -62,7 +79,7 @@ export const Dm: React.FC<DmProps> = ({ value, label, style }) => {
       </style>
       <div style={cardStyle} data-node-id="174:541">
         <p style={valueStyle} data-node-id="174:539">
-          {value}
+          {displayValue}
         </p>
         <p style={labelStyle} data-node-id="174:538">
           {label}

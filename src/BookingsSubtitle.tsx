@@ -1,4 +1,4 @@
-import React, { CSSProperties } from 'remotion';
+import React, { CSSProperties } from 'react';
 import { staticFile } from 'remotion';
 
 interface BookingsSubtitleProps {

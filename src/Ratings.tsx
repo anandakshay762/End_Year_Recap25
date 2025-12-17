@@ -1,12 +1,12 @@
-import React, { CSSProperties } from 'remotion';
+import React, { CSSProperties } from 'react';
 import { staticFile } from 'remotion';
 
-interface RecapCompletedProps {
-  text: string;
+interface RatingsProps {
+  rating: string;
   style?: CSSProperties;
 }
 
-export const RecapCompleted: React.FC<RecapCompletedProps> = ({ text, style }) => {
+export const Ratings: React.FC<RatingsProps> = ({ rating, style }) => {
   const bannerStyle: CSSProperties = {
     position: 'relative',
     width: '892px',
@@ -32,9 +32,14 @@ export const RecapCompleted: React.FC<RecapCompletedProps> = ({ text, style }) =
     margin: 0,
     lineHeight: 1.2,
     letterSpacing: '-0.5px',
-    whiteSpace: 'pre-wrap',
     textAlign: 'center',
     width: '100%',
+  };
+
+  const ratingStyle: CSSProperties = {
+    fontSize: '80px',
+    fontWeight: 700,
+    color: '#ffffff',
   };
 
   return (
@@ -51,7 +56,7 @@ export const RecapCompleted: React.FC<RecapCompletedProps> = ({ text, style }) =
       </style>
       <div style={bannerStyle} data-node-id="179:561">
         <p style={textStyle} data-node-id="179:560">
-          {text}
+          Excellence confirmed: <span style={ratingStyle}>{rating}</span> rating
         </p>
       </div>
     </>

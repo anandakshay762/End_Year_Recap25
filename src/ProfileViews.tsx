@@ -1,13 +1,30 @@
-import React, { CSSProperties } from 'remotion';
-import { staticFile } from 'remotion';
+import React, { CSSProperties } from 'react';
+import { staticFile, interpolate } from 'remotion';
 
 interface ProfileViewsProps {
   value: string;
   label: string;
   style?: CSSProperties;
+  animationProgress?: number;
 }
 
-export const ProfileViews: React.FC<ProfileViewsProps> = ({ value, label, style }) => {
+export const ProfileViews: React.FC<ProfileViewsProps> = ({ value, label, style, animationProgress = 1 }) => {
+  // Parse the numeric value from the string (remove commas)
+  const numericValue = parseInt(value.replace(/,/g, '')) || 0;
+
+  // Animate the number from 0 to the target value
+  const animatedValue = Math.floor(interpolate(
+    animationProgress,
+    [0, 1],
+    [0, numericValue],
+    {
+      extrapolateLeft: 'clamp',
+      extrapolateRight: 'clamp',
+    }
+  ));
+
+  // Format the number with commas
+  const displayValue = animatedValue.toLocaleString();
   const cardStyle: CSSProperties = {
     position: 'relative',
     width: '490px',
@@ -62,7 +79,7 @@ export const ProfileViews: React.FC<ProfileViewsProps> = ({ value, label, style 
       </style>
       <div style={cardStyle} data-node-id="164:497">
         <p style={valueStyle} data-node-id="164:494">
-          {value}
+          {displayValue}
         </p>
         <p style={labelStyle} data-node-id="164:493">
           {label}

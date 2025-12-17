@@ -1,13 +1,32 @@
-import React, { CSSProperties } from 'remotion';
-import { staticFile } from 'remotion';
+import React, { CSSProperties } from 'react';
+import { staticFile, interpolate } from 'remotion';
 
 interface TimeSpentProps {
   value: string;
   label: string;
   style?: CSSProperties;
+  animationProgress?: number;
 }
 
-export const TimeSpent: React.FC<TimeSpentProps> = ({ value, label, style }) => {
+export const TimeSpent: React.FC<TimeSpentProps> = ({ value, label, style, animationProgress = 1 }) => {
+  // Extract number and unit (e.g., "420 hrs" -> 420, "hrs")
+  const match = value.match(/^(\d+)\s*(.*)$/);
+  const numericValue = match ? parseInt(match[1]) : 0;
+  const unit = match ? match[2] : '';
+
+  // Animate the number from 0 to the target value
+  const animatedValue = Math.floor(interpolate(
+    animationProgress,
+    [0, 1],
+    [0, numericValue],
+    {
+      extrapolateLeft: 'clamp',
+      extrapolateRight: 'clamp',
+    }
+  ));
+
+  // Format the display value with the unit
+  const displayValue = unit ? `${animatedValue} ${unit}` : animatedValue.toString();
   const cardStyle: CSSProperties = {
     position: 'relative',
     width: '518px',
@@ -65,7 +84,7 @@ export const TimeSpent: React.FC<TimeSpentProps> = ({ value, label, style }) => 
           {label}
         </p>
         <p style={valueStyle} data-node-id="167:513">
-          {value}
+          {displayValue}
         </p>
       </div>
     </>

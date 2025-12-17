@@ -1,4 +1,4 @@
-import React, { CSSProperties } from 'remotion';
+import React, { CSSProperties } from 'react';
 import { useCurrentFrame, interpolate } from 'remotion';
 
 interface BadgeProps {
