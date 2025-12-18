@@ -1,0 +1,55 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Live Preview</title>
+    <style>
+      body { margin: 0; display:flex; align-items:center; justify-content:center; height:100vh; background:#111; color:#fff }
+      .container { width:100%; max-width:480px; text-align:center }
+      video { width:100%; border-radius:12px; background:#000 }
+      .msg { margin-top:8px; color:#ddd; font-size:13px }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <video id="liveVideo" controls autoplay muted playsinline></video>
+      <div class="msg" id="status">Waiting for props...</div>
+    </div>
+
+    <script>
+      // Listen for props update messages from parent window
+      window.addEventListener('message', async (ev) => {
+        try {
+          if (!ev.data || ev.data.type !== 'live-preview-props') return;
+          const props = ev.data.props;
+          document.getElementById('status').textContent = 'Generating quick preview...';
+
+          // Call server preview endpoint to generate a short, low-res clip
+          const resp = await fetch('/preview', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(props)
+          });
+
+          if (!resp.ok) {
+            const body = await resp.json().catch(() => ({}));
+            document.getElementById('status').textContent = 'Preview failed: ' + (body.error || resp.statusText);
+            return;
+          }
+
+          const { previewUrl } = await resp.json();
+          const player = document.getElementById('liveVideo');
+          player.src = previewUrl;
+          player.play().catch(() => {});
+          document.getElementById('status').textContent = 'Preview updated';
+        } catch (err) {
+          document.getElementById('status').textContent = 'Preview error: ' + (err.message || err);
+        }
+      });
+
+      // For quick development: allow opening the page directly to test
+      window.parent && window.parent.postMessage({ type: 'preview-ready' }, window.location.origin);
+    </script>
+  </body>
+</html>

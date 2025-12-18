@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Year End Recap Video Generator</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    h1 {
+      color: #333;
+      margin-bottom: 10px;
+      font-size: 32px;
+      text-align: center;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #666;
+      margin-bottom: 40px;
+      font-size: 16px;
+    }
+
+    .form-group {
+      margin-bottom: 25px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      color: #444;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .required {
+      color: #e74c3c;
+    }
+
+    input[type="text"],
+    input[type="file"],
+    textarea {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid #e1e8ed;
+      border-radius: 8px;
+      font-size: 15px;
+      transition: all 0.3s;
+      font-family: inherit;
+    }
+
+    input[type="text"]:focus,
+    textarea:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .file-input-wrapper {
+      position: relative;
+      overflow: hidden;
+      display: inline-block;
+      width: 100%;
+    }
+
+    .file-input-wrapper input[type="file"] {
+      position: absolute;
+      left: -9999px;
+    }
+
+    .file-input-label {
+      display: block;
+      padding: 12px 16px;
+      background: #f8f9fa;
+      border: 2px dashed #ccc;
+      border-radius: 8px;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.3s;
+    }
+
+    .file-input-label:hover {
+      background: #e9ecef;
+      border-color: #667eea;
+    }
+
+    .file-name {
+      margin-top: 8px;
+      font-size: 13px;
+      color: #666;
+    }
+
+    .preview-image {
+      margin-top: 15px;
+      max-width: 150px;
+      border-radius: 50%;
+      border: 3px solid #667eea;
+      display: none;
+    }
+
+    button {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 20px;
+    }
+
+    button:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .status {
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 8px;
+      font-size: 14px;
+      display: none;
+    }
+
+    .status.success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .status.error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    .status.processing {
+      background: #d1ecf1;
+      color: #0c5460;
+      border: 1px solid #bee5eb;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: #e1e8ed;
+      border-radius: 4px;
+      margin-top: 10px;
+      overflow: hidden;
+      display: none;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+      width: 0%;
+      transition: width 0.3s;
+    }
+
+    .section-title {
+      font-size: 18px;
+      color: #667eea;
+      margin-top: 30px;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #e1e8ed;
+    }
+
+    .download-link {
+      display: inline-block;
+      margin-top: 15px;
+      padding: 12px 24px;
+      background: #28a745;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+
+    .download-link:hover {
+      background: #218838;
+      transform: translateY(-2px);
+    }
+
+    .helper-text {
+      font-size: 12px;
+      color: #888;
+      margin-top: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Year End Recap Video Generator</h1>
+    <p class="subtitle">Fill in the details below to generate your personalized year-end recap video</p>
+
+    <form id="videoForm">
+      <div class="section-title">Profile Information</div>
+
+      <div class="form-group">
+        <label for="profilePic">Profile Picture (Optional)</label>
+        <div class="file-input-wrapper">
+          <input type="file" id="profilePic" name="profilePic" accept="image/*">
+          <label for="profilePic" class="file-input-label">
+            📸 Click to upload profile picture (optional)
+          </label>
+        </div>
+        <div class="file-name" id="fileName"></div>
+        <img id="preview" class="preview-image" alt="Profile preview">
+        <div class="helper-text">Leave empty to use a placeholder</div>
+      </div>
+
+      <div class="form-group">
+        <label for="name">Name <span class="required">*</span></label>
+        <input type="text" id="name" name="name" placeholder="e.g., Sarah" required>
+      </div>
+
+      <div class="section-title">Journey Milestones</div>
+
+      <div class="form-group">
+        <label for="totalBookings">Total Bookings <span class="required">*</span></label>
+        <input type="text" id="totalBookings" name="totalBookings" placeholder="e.g., 247" required>
+        <div class="helper-text">Total number of bookings received this year</div>
+      </div>
+
+      <div class="section-title">Global Reach</div>
+
+      <div class="form-group">
+        <label for="city1">Top City 1 <span class="required">*</span></label>
+        <input type="text" id="city1" name="city1" placeholder="e.g., Mumbai" required>
+      </div>
+
+      <div class="form-group">
+        <label for="city2">Top City 2 <span class="required">*</span></label>
+        <input type="text" id="city2" name="city2" placeholder="e.g., Tokyo" required>
+      </div>
+
+      <div class="form-group">
+        <label for="uniqueCitiesCount">Unique Cities Count <span class="required">*</span></label>
+        <input type="text" id="uniqueCitiesCount" name="uniqueCitiesCount" placeholder="e.g., 12" required>
+        <div class="helper-text">Total number of unique cities bookings received from</div>
+      </div>
+
+      <div class="section-title">Peak Performance</div>
+
+      <div class="form-group">
+        <label for="mostBookedMonth">Most Booked Month <span class="required">*</span></label>
+        <input type="text" id="mostBookedMonth" name="mostBookedMonth" placeholder="e.g., August" required>
+        <div class="helper-text">The month with the highest number of bookings</div>
+      </div>
+
+      <div class="form-group">
+        <label for="mostPopularService">Most Popular Service <span class="required">*</span></label>
+        <input type="text" id="mostPopularService" name="mostPopularService" placeholder="e.g., 1-on-1 Career Coaching" required>
+        <div class="helper-text">Your most booked service or offering</div>
+      </div>
+
+      <div class="section-title">Client Feedback</div>
+
+      <div class="form-group">
+        <label for="testimonial">Featured Testimonial <span class="required">*</span></label>
+        <textarea id="testimonial" name="testimonial" placeholder="e.g., Working with Sarah completely transformed my career path. Her insights were exactly what I needed." required></textarea>
+        <div class="helper-text">A memorable client testimonial from this year (75-150 characters preferred)</div>
+      </div>
+
+      <div class="form-group">
+        <label for="testimonialGiverName">Testimonial Giver Name <span class="required">*</span></label>
+        <input type="text" id="testimonialGiverName" name="testimonialGiverName" placeholder="e.g., Alex Johnson" required>
+        <div class="helper-text">Name of the person who gave the testimonial</div>
+      </div>
+
+      <div class="section-title">Achievements</div>
+
+      <div class="form-group">
+        <label for="topPercentage">Top Percentage <span class="required">*</span></label>
+        <input type="text" id="topPercentage" name="topPercentage" placeholder="e.g., 5" required>
+        <div class="helper-text">Your ranking percentile (e.g., top 5% - do not go more than 5%)</div>
+      </div>
+
+      <div class="form-group">
+        <label for="rating">Average Rating <span class="required">*</span></label>
+        <input type="text" id="rating" name="rating" placeholder="e.g., 4.9" required>
+        <div class="helper-text">Your average rating out of 5 (if less than 4, use 4)</div>
+      </div>
+
+      <button type="submit" id="submitBtn">Generate Video</button>
+      <button type="button" id="openStudioBtn" style="margin-top:10px;background:#333;color:#fff;border:0;padding:12px;border-radius:8px;">Open Remotion Studio</button>
+        <button type="button" id="previewBtn" style="margin-top:10px;background:#888;color:#fff;border:0;padding:12px;border-radius:8px;">Preview</button>
+      </form>
+
+      <div id="videoPreviewContainer" style="display:none;margin-top:24px;text-align:center;">
+        <h3>Video Preview</h3>
+        <video id="videoPreview" controls style="width:100%;max-width:600px;"></video>
+      </div>
+    </form>
+
+    <div style="margin-top:16px; display:flex; align-items:center; gap:12px;">
+      <div class="progress-bar" id="progressBar" style="flex:1; display:none;">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <div id="timer" style="font-size:14px;color:#333;min-width:80px;display:none;">Elapsed: <span id="elapsed">00:00</span></div>
+    </div>
+
+    <div class="status" id="status"></div>
+  </div>
+
+  <script>
+    const form = document.getElementById('videoForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const openStudioBtn = document.getElementById('openStudioBtn');
+
+      const previewBtn = document.getElementById('previewBtn');
+      const videoPreviewContainer = document.getElementById('videoPreviewContainer');
+      const videoPreview = document.getElementById('videoPreview');
+    previewBtn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(form);
+      const data = {
+        Profile_pic: uploadedProfilePicUrl || '',
+        name: formData.get('name'),
+        totalBookings: formData.get('totalBookings'),
+        city1: formData.get('city1'),
+        city2: formData.get('city2'),
+        uniqueCitiesCount: formData.get('uniqueCitiesCount'),
+        mostBookedMonth: formData.get('mostBookedMonth'),
+        mostPopularService: formData.get('mostPopularService'),
+        testimonial: formData.get('testimonial'),
+        testimonialGiverName: formData.get('testimonialGiverName'),
+        topPercentage: formData.get('topPercentage'),
+        rating: formData.get('rating')
+      };
+      previewBtn.disabled = true;
+      previewBtn.textContent = 'Generating Preview...';
+      showStatus('Generating preview...', 'processing');
+      try {
+        const resp = await fetch('http://localhost:3001/preview', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        if (!resp.ok) {
+          const body = await resp.json().catch(() => ({}));
+          throw new Error(body.error || 'Failed to generate preview');
+        }
+        const { previewUrl } = await resp.json();
+        videoPreview.src = previewUrl;
+        videoPreviewContainer.style.display = 'block';
+        showStatus('Preview ready!', 'success');
+      } catch (error) {
+        showStatus(`Preview error: ${error.message}`, 'error');
+      } finally {
+        previewBtn.disabled = false;
+        previewBtn.textContent = 'Preview';
+      }
+    });
+
+    openStudioBtn.addEventListener('click', () => {
+      // Opens the Remotion Studio in a new tab (default port 3002)
+      window.open('http://localhost:3002', '_blank');
+    });
+
+    const status = document.getElementById('status');
+    const progressBar = document.getElementById('progressBar');
+    const progressFill = document.getElementById('progressFill');
+    const profilePicInput = document.getElementById('profilePic');
+    const fileNameDiv = document.getElementById('fileName');
+    const preview = document.getElementById('preview');
+    const timerDiv = document.getElementById('timer');
+    const elapsedSpan = document.getElementById('elapsed');
+
+    // Live preview iframe and controls
+    let livePreviewIframe = null;
+    const livePreviewToggle = document.createElement('button');
+    livePreviewToggle.textContent = 'Toggle Live Preview';
+    livePreviewToggle.style.marginTop = '10px';
+    livePreviewToggle.style.background = '#222';
+    livePreviewToggle.style.color = '#fff';
+    livePreviewToggle.style.border = '0';
+    livePreviewToggle.style.padding = '12px';
+    livePreviewToggle.style.borderRadius = '8px';
+    livePreviewToggle.addEventListener('click', () => {
+      if (!livePreviewIframe) {
+        livePreviewIframe = document.createElement('iframe');
+        livePreviewIframe.src = '/preview.html';
+        livePreviewIframe.style.width = '360px';
+        livePreviewIframe.style.height = '420px';
+        livePreviewIframe.style.border = '1px solid #ddd';
+        livePreviewIframe.style.borderRadius = '12px';
+        livePreviewIframe.style.marginTop = '12px';
+        document.querySelector('.container').appendChild(livePreviewIframe);
+        livePreviewToggle.textContent = 'Hide Live Preview';
+      } else {
+        livePreviewIframe.remove();
+        livePreviewIframe = null;
+        livePreviewToggle.textContent = 'Show Live Preview';
+      }
+    });
+    document.querySelector('.container form').appendChild(livePreviewToggle);
+
+    // Debounced sender to iframe
+    function debounce(fn, wait) {
+      let t = null;
+      return (...args) => {
+        clearTimeout(t);
+        t = setTimeout(() => fn(...args), wait);
+      };
+    }
+
+    function gatherProps() {
+      const formData = new FormData(form);
+      return {
+        Profile_pic: uploadedProfilePicUrl || '',
+        name: formData.get('name'),
+        totalBookings: formData.get('totalBookings'),
+        city1: formData.get('city1'),
+        city2: formData.get('city2'),
+        uniqueCitiesCount: formData.get('uniqueCitiesCount'),
+        mostBookedMonth: formData.get('mostBookedMonth'),
+        mostPopularService: formData.get('mostPopularService'),
+        testimonial: formData.get('testimonial'),
+        testimonialGiverName: formData.get('testimonialGiverName'),
+        topPercentage: formData.get('topPercentage'),
+        rating: formData.get('rating')
+      };
+    }
+
+    const sendLivePreview = debounce(() => {
+      if (!livePreviewIframe || !livePreviewIframe.contentWindow) return;
+      const props = gatherProps();
+      // Send to both preview types if present
+      livePreviewIframe.contentWindow.postMessage({ type: 'live-preview-props', props }, window.location.origin);
+      // also send to player iframe if it's open
+      if (playerIframe && playerIframe.contentWindow) {
+        playerIframe.contentWindow.postMessage({ type: 'live-player-props', props }, window.location.origin);
+      }
+    }, 200);
+
+    // Attach input listeners
+    ['name','totalBookings','city1','city2','uniqueCitiesCount','mostBookedMonth','mostPopularService','testimonial','testimonialGiverName','topPercentage','rating'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('input', sendLivePreview);
+    });
+
+    // Player iframe for interactive updates
+    let playerIframe = null;
+    const playerToggle = document.createElement('button');
+    playerToggle.textContent = 'Show Player Preview';
+    playerToggle.style.marginTop = '10px';
+    playerToggle.style.background = '#007acc';
+    playerToggle.style.color = '#fff';
+    playerToggle.style.border = '0';
+    playerToggle.style.padding = '12px';
+    playerToggle.style.borderRadius = '8px';
+    playerToggle.addEventListener('click', () => {
+      if (!playerIframe) {
+        playerIframe = document.createElement('iframe');
+        playerIframe.src = '/preview-player.html';
+        playerIframe.style.width = '360px';
+        playerIframe.style.height = '520px';
+        playerIframe.style.border = '1px solid #ddd';
+        playerIframe.style.borderRadius = '12px';
+        playerIframe.style.marginTop = '12px';
+        document.querySelector('.container').appendChild(playerIframe);
+        playerToggle.textContent = 'Hide Player Preview';
+
+        // Send initial props once iframe is ready
+        window.addEventListener('message', function onReady(e) {
+          if (e.data?.type === 'preview-player-ready') {
+            const props = gatherProps();
+            playerIframe.contentWindow.postMessage({ type: 'live-player-props', props }, window.location.origin);
+            window.removeEventListener('message', onReady);
+          }
+        });
+      } else {
+        playerIframe.remove();
+        playerIframe = null;
+        playerToggle.textContent = 'Show Player Preview';
+      }
+    });
+
+    document.querySelector('.container form').appendChild(playerToggle);
+
+    let uploadedProfilePicUrl = '';
+    let timerInterval = null;
+
+    openStudioBtn.addEventListener('click', () => {
+      window.open('http://localhost:3004', '_blank');
+    });
+
+    profilePicInput.addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      fileNameDiv.textContent = `Selected: ${file.name}`;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        preview.src = e.target.result;
+        preview.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+
+      const formData = new FormData();
+      formData.append('profilePic', file);
+
+      try {
+        showStatus('Uploading profile picture...', 'processing');
+        const response = await fetch('http://localhost:3001/upload-profile-pic', {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          uploadedProfilePicUrl = data.url;
+          showStatus('Profile picture uploaded successfully!', 'success');
+          setTimeout(() => hideStatus(), 2000);
+        } else {
+          throw new Error(data.error);
+        }
+      } catch (error) {
+        showStatus(`Error uploading profile picture: ${error.message}`, 'error');
+      }
+    });
+
+    function startTimer() {
+      const start = Date.now();
+      timerDiv.style.display = 'block';
+      elapsedSpan.textContent = '00:00';
+      timerInterval = setInterval(() => {
+        const diff = Date.now() - start;
+        const sec = Math.floor(diff / 1000);
+        const mm = String(Math.floor(sec / 60)).padStart(2, '0');
+        const ss = String(sec % 60).padStart(2, '0');
+        elapsedSpan.textContent = `${mm}:${ss}`;
+      }, 500);
+    }
+
+    function stopTimer() {
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+      setTimeout(() => { timerDiv.style.display = 'none'; }, 2000);
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const formData = new FormData(form);
+      const data = {
+        Profile_pic: uploadedProfilePicUrl || '',
+        name: formData.get('name'),
+        totalBookings: formData.get('totalBookings'),
+        city1: formData.get('city1'),
+        city2: formData.get('city2'),
+        uniqueCitiesCount: formData.get('uniqueCitiesCount'),
+        mostBookedMonth: formData.get('mostBookedMonth'),
+        mostPopularService: formData.get('mostPopularService'),
+        testimonial: formData.get('testimonial'),
+        testimonialGiverName: formData.get('testimonialGiverName'),
+        topPercentage: formData.get('topPercentage'),
+        rating: formData.get('rating')
+      };
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Generating Video...';
+      showStatus('Processing your video... Connecting to server.', 'processing');
+      progressBar.style.display = 'block';
+      progressFill.style.width = '0%';
+
+      startTimer();
+
+      try {
+        // Request jobId and start job in background
+        const resp = await fetch('http://localhost:3001/render-video', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+
+        if (!resp.ok) {
+          const body = await resp.json().catch(() => ({}));
+          throw new Error(body.error || 'Failed to start render job');
+        }
+
+        const { jobId } = await resp.json();
+        showStatus(`Job started: ${jobId}. Listening for progress...`, 'processing');
+
+        // Open SSE connection for progress
+        const es = new EventSource(`http://localhost:3001/render-progress/${jobId}`);
+
+        es.addEventListener('progress', (ev) => {
+          try {
+            const d = JSON.parse(ev.data);
+            progressFill.style.width = `${d.progress}%`;
+            showStatus(`Rendering: ${d.progress}%`, 'processing');
+          } catch (err) {
+            console.warn('Invalid progress data', err);
+          }
+        });
+
+        es.addEventListener('done', (ev) => {
+          try {
+            const d = JSON.parse(ev.data);
+            progressFill.style.width = '100%';
+            showStatus(`Video ready — <a href="${d.downloadUrl}" class="download-link">Download Video</a>`, 'success');
+            es.close();
+          } catch (err) {
+            showStatus('Render finished but data invalid', 'error');
+            es.close();
+          } finally {
+            stopTimer();
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Generate Video';
+          }
+        });
+
+        es.addEventListener('error', (ev) => {
+          // EventSource 'error' can be either connection errors or server-sent error events
+          try {
+            const d = JSON.parse(ev.data);
+            showStatus(`Error: ${d.error}`, 'error');
+          } catch (err) {
+            showStatus('Connection to progress stream lost', 'error');
+          } finally {
+            es.close();
+            stopTimer();
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Generate Video';
+          }
+        });
+
+      } catch (error) {
+        showStatus(`Error: ${error.message}`, 'error');
+        progressFill.style.width = '0%';
+        stopTimer();
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Generate Video';
+      }
+    });
+
+    function showStatus(message, type) {
+      status.innerHTML = message;
+      status.className = 'status ' + type;
+      status.style.display = 'block';
+    }
+
+    function hideStatus() {
+      status.style.display = 'none';
+    }
+  </script>
+</body>
+</html>

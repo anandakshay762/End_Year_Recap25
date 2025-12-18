@@ -8,8 +8,8 @@ import { z } from 'zod';
  * Resolution: 1080x1080px
  */
 export const compositionSchema = z.object({
-  // Constant across all scenes
-  Profile_pic: z.string(), // URL to profile picture (appears bottom right throughout video)
+  // Constant across all scenes (optional)
+  Profile_pic: z.string().optional(), // URL to profile picture (appears bottom right throughout video)
 
   // Scene 1: Intro - "{NAME}'S TOPMATE RECAP 2025"
   name: z.string(), // User's first name
