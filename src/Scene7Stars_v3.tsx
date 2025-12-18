@@ -75,7 +75,14 @@ export const Scene7Stars: React.FC<Scene7StarsProps> = ({
     easing: Easing.out(Easing.cubic),
   });
 
-  // Underline
+  // Underline - calculate width based on rating text
+  // Rating format is always "N.N/5" (5 characters)
+  // At 260px font size with -10px letter spacing
+  const ratingText = `${animatedRating.toFixed(1)}/5`;
+  const charCount = ratingText.length; // Will be 5 characters (e.g., "4.9/5")
+  const charWidth = 130; // Approximate width per character at 260px font
+  const estimatedTextWidth = charCount * charWidth;
+
   const underlineWidth = interpolate(localFrame, [42, 58], [0, 100], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
@@ -149,7 +156,7 @@ export const Scene7Stars: React.FC<Scene7StarsProps> = ({
               bottom: -10,
               left: 0,
               width: `${underlineWidth}%`,
-              maxWidth: '500px',
+              maxWidth: `${estimatedTextWidth}px`,
               height: '6px',
               background: '#ffffff',
             }}

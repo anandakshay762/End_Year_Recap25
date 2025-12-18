@@ -32,6 +32,25 @@ export const MyComposition: React.FC<CompositionProps> = ({
   // Background video plays for the entire duration (2910 frames)
   const bgVideoOpacity = frame < 2910 ? 1 : 0;
 
+  // Logo animation - fade in at frame 14, fade out at frame 2887
+  const logoOpacity = frame < 14
+    ? 0
+    : frame >= 14 && frame < 34
+    ? (frame - 14) / 20  // Fade in over 20 frames
+    : frame >= 2887 && frame < 2907
+    ? 1 - ((frame - 2887) / 20)  // Fade out over 20 frames
+    : frame >= 2907
+    ? 0
+    : 1;
+
+  const logoY = frame < 14
+    ? -20
+    : frame >= 14 && frame < 34
+    ? -20 + ((frame - 14) / 20) * 20  // Slide down 20px over 20 frames
+    : frame >= 2887 && frame < 2907
+    ? ((frame - 2887) / 20) * -20  // Slide up 20px over 20 frames
+    : 0;
+
   // Scene timing - Scene 8 removed, outro extended to maintain 2910 frame duration
   const sceneDuration = 291;
   const scenes = {
@@ -75,6 +94,27 @@ export const MyComposition: React.FC<CompositionProps> = ({
           pointerEvents: 'none',
         }}
       />
+
+      {/* Topmate Logo - Top Left Throughout Video */}
+      <div
+        style={{
+          position: 'absolute',
+          top: '80px',
+          left: '80px',
+          zIndex: 10,
+          opacity: logoOpacity,
+          transform: `translateY(${logoY}px)`,
+        }}
+      >
+        <img
+          src={staticFile('topmate-light.svg')}
+          alt="Topmate"
+          style={{
+            height: '40px',
+            width: 'auto',
+          }}
+        />
+      </div>
 
       {/* Profile Picture - Bottom Right Throughout Video */}
       <ProfilePicture src={Profile_pic} startFrame={13} endFrame={2910} name={name} />

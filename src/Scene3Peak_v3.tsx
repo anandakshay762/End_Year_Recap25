@@ -14,9 +14,30 @@ export const Scene3Peak: React.FC<Scene3PeakProps> = ({
   const frame = useCurrentFrame();
   const localFrame = frame - startFrame;
 
-  // Responsive font size based on character count
+  // Responsive font size based on character count to prevent overlap with profile pic
   const charCount = mostBookedMonth.length;
-  const monthFontSize = charCount > 8 ? '140px' : '180px';
+  const monthFontSize = charCount > 10 ? '80px'
+                      : charCount === 9 ? '110px'  // September = 9 chars
+                      : charCount === 8 ? '130px'  // December, November, February = 8 chars
+                      : charCount === 7 ? '130px'  // October, January = 7 chars
+                      : '180px';
+
+  // Calculate letter spacing based on font size
+  const letterSpacing = charCount > 10 ? '-4px'
+                       : charCount === 9 ? '-5px'
+                       : charCount === 8 ? '-6px'
+                       : charCount === 7 ? '-6px'
+                       : '-8px';
+
+  // Calculate underline width based on character count and font size
+  // Approximate width per character at different font sizes
+  const charWidth = charCount > 10 ? 60
+                   : charCount === 9 ? 85
+                   : charCount === 8 ? 100
+                   : charCount === 7 ? 100
+                   : 130;
+  const estimatedTextWidth = charCount * charWidth - (charCount - 1) * Math.abs(parseInt(letterSpacing));
+  const underlineMaxWidth = `${estimatedTextWidth}px`;
 
   // Scene fade
   const sceneOpacity = interpolate(localFrame, [0, 20], [0, 1], {
@@ -94,7 +115,7 @@ export const Scene3Peak: React.FC<Scene3PeakProps> = ({
               color: '#ffffff',
               margin: 0,
               lineHeight: 0.8,
-              letterSpacing: '-8px',
+              letterSpacing: letterSpacing,
               textShadow: '0 10px 60px rgba(0, 0, 0, 1)',
               textTransform: 'uppercase',
             }}
@@ -109,7 +130,7 @@ export const Scene3Peak: React.FC<Scene3PeakProps> = ({
               bottom: -10,
               left: 0,
               width: `${underlineWidth}%`,
-              maxWidth: '500px',
+              maxWidth: underlineMaxWidth,
               height: '6px',
               background: '#ffffff',
             }}

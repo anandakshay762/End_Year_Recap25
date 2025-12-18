@@ -212,19 +212,20 @@ export const Scene9Outro: React.FC<Scene9OutroProps> = ({ startFrame }) => {
               <h1
                 style={{
                   fontFamily: FONT_FAMILY,
-                  fontSize: '120px',
+                  fontSize: '100px',
                   fontWeight: 900,
                   color: '#ffffff',
                   margin: 0,
-                  lineHeight: 1,
-                  letterSpacing: '-4px',
+                  lineHeight: 0.95,
+                  letterSpacing: '-3px',
                   textShadow: '0 10px 60px rgba(0, 0, 0, 1)',
                   textTransform: 'uppercase',
                   whiteSpace: 'pre-line',
-                  maxWidth: '800px',
+                  maxWidth: '700px',
+                  WebkitTextStroke: '1px rgba(255, 255, 255, 0.3)',
                 }}
               >
-                {'the next\nchapter'}
+                {'THE NEXT\nCHAPTER'}
               </h1>
             </div>
           )}
