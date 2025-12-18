@@ -1,5 +1,6 @@
 import React from 'react';
 import { AbsoluteFill, Img, useCurrentFrame, interpolate } from 'remotion';
+import { FONT_FAMILY } from './fonts';
 
 interface ProfilePictureProps {
   src: string;
@@ -19,32 +20,6 @@ export const ProfilePicture: React.FC<ProfilePictureProps> = ({
   // Only show between startFrame and endFrame
   if (frame < startFrame || frame >= endFrame) {
     return null;
-  }
-
-  // Calculate margin based on name length to prevent overlap
-  // Account for text wrapping AND subtitle height
-  const titleText = `${name}, your 2025`;
-
-  // Base calculation:
-  // - Subtitle is ~40px (24px font * 1.5 line-height)
-  // - Title single line is ~80px (72px font * 1.1 line-height)
-  // - Need ~40px spacing between image and text
-  // Total base = 40 + 80 + 40 = 160px minimum
-
-  let calculatedMargin = 225; // Base for single line title + subtitle + spacing
-
-  if (titleText.length > 25) {
-    // Text will wrap to 2 lines - need space for 2 lines + subtitle + spacing
-    // ~80px + ~80px + ~40px + ~40px = 240px
-    calculatedMargin = 305;
-  }
-  if (titleText.length > 28) {
-    // Text scales down to 56px but might still wrap
-    calculatedMargin = 325;
-  }
-  if (titleText.length > 35) {
-    // Text scales down to 48px - less wrapping
-    calculatedMargin = 295;
   }
 
   // Scale animation - pops in
@@ -70,34 +45,20 @@ export const ProfilePicture: React.FC<ProfilePictureProps> = ({
     }
   );
 
-  // Fade out before disappearing
-  const fadeOutOpacity = interpolate(
-    frame,
-    [endFrame - 20, endFrame],
-    [1, 0],
-    {
-      extrapolateLeft: 'clamp',
-      extrapolateRight: 'clamp',
-      easing: (t) => Math.pow(t, 2),
-    }
-  );
-
-  const finalOpacity = opacity * fadeOutOpacity;
-
   // Check if src is valid
   const hasValidSrc = src && src.trim() !== '';
 
   return (
     <AbsoluteFill
       style={{
-        opacity: finalOpacity,
+        opacity,
       }}
     >
       <div
         style={{
           position: 'absolute',
-          bottom: `${calculatedMargin}px`,
-          left: '60px',
+          bottom: '80px',
+          right: '80px',
           width: '150px',
           height: '150px',
           borderRadius: '50%',
@@ -129,7 +90,7 @@ export const ProfilePicture: React.FC<ProfilePictureProps> = ({
               display: 'flex',
               justifyContent: 'center',
               alignItems: 'center',
-              fontFamily: 'system-ui, -apple-system, sans-serif',
+              fontFamily: FONT_FAMILY,
               fontSize: '36px',
               fontWeight: '600',
               color: 'rgba(255, 255, 255, 0.5)',

@@ -1,37 +1,38 @@
 import React from 'react';
-import { AbsoluteFill, useCurrentFrame, OffthreadVideo, staticFile, interpolate } from 'remotion';
-import { Scene0Intro } from './Scene0Intro';
-import { Scene1Journey } from './Scene1Journey';
-import { Scene2Reach } from './Scene2Reach';
-import { Scene3Peak } from './Scene3Peak';
-import { Scene4Signature } from './Scene4Signature';
-import { Scene5Voices } from './Scene5Voices';
-import { Scene6Summit } from './Scene6Summit';
-import { Scene7Stars } from './Scene7Stars';
-import { Scene8Universe } from './Scene8Universe';
-import { Scene9Outro } from './Scene9Outro';
+import { AbsoluteFill, useCurrentFrame, OffthreadVideo, Audio, staticFile } from 'remotion';
+// V3 Redesigned scenes - BRUTALIST BLACK & WHITE
+import { Scene0Intro } from './Scene0Intro_v3';
+import { Scene1Journey } from './Scene1Journey_v3';
+import { Scene2Reach } from './Scene2Reach_v3';
+import { Scene3Peak } from './Scene3Peak_v3';
+import { Scene4Signature } from './Scene4Signature_v3';
+import { Scene5Voices } from './Scene5Voices_v3';
+import { Scene6Summit } from './Scene6Summit_v3';
+import { Scene7Stars } from './Scene7Stars_v3';
+import { Scene9Outro } from './Scene9Outro_v3';
 import { ProfilePicture } from './ProfilePicture';
 import { CompositionProps } from './types';
 
 export const MyComposition: React.FC<CompositionProps> = ({
   Profile_pic,
   name,
-  firstBookingDate,
   totalBookings,
   city1,
   city2,
+  uniqueCitiesCount,
   mostBookedMonth,
   mostPopularService,
   testimonial,
+  testimonialGiverName,
   topPercentage,
   rating,
 }) => {
   const frame = useCurrentFrame();
 
-  // Background video plays for the entire duration
+  // Background video plays for the entire duration (2910 frames)
   const bgVideoOpacity = frame < 2910 ? 1 : 0;
 
-  // Scene timing - equal duration for all scenes (291 frames each = ~9.7 seconds)
+  // Scene timing - Scene 8 removed, outro extended to maintain 2910 frame duration
   const sceneDuration = 291;
   const scenes = {
     intro: { start: 0, end: 291 },                    // 291 frames
@@ -42,49 +43,17 @@ export const MyComposition: React.FC<CompositionProps> = ({
     voices: { start: 1455, end: 1746 },               // 291 frames
     summit: { start: 1746, end: 2037 },               // 291 frames
     stars: { start: 2037, end: 2328 },                // 291 frames
-    universe: { start: 2328, end: 2619 },             // 291 frames
-    outro: { start: 2619, end: 2910 },                // 291 frames
+    outro: { start: 2328, end: 2910 },                // 582 frames (2x duration for flip animation)
   };
 
-  // Fade out duration for all scenes
-  const fadeOutDuration = 15;
-
-  // Helper function to calculate scene opacity with fade in/out
-  const getSceneOpacity = (startFrame: number, endFrame: number) => {
-    if (frame < startFrame || frame >= endFrame) return 0;
-
-    // Fade in
-    const fadeInOpacity = interpolate(
-      frame,
-      [startFrame, startFrame + 20],
-      [0, 1],
-      {
-        extrapolateLeft: 'clamp',
-        extrapolateRight: 'clamp',
-      }
-    );
-
-    // Fade out
-    const fadeOutOpacity = interpolate(
-      frame,
-      [endFrame - fadeOutDuration, endFrame],
-      [1, 0],
-      {
-        extrapolateLeft: 'clamp',
-        extrapolateRight: 'clamp',
-        easing: (t) => Math.pow(t, 2),
-      }
-    );
-
-    return Math.min(fadeInOpacity, fadeOutOpacity);
-  };
 
   return (
     <AbsoluteFill>
       {/* Background Video */}
       {frame < 2910 && (
         <OffthreadVideo
-          src={staticFile('bg_1.mp4')}
+          src={staticFile('bg_1_fixed.mp4')}
+          muted
           style={{
             position: 'absolute',
             width: '100%',
@@ -94,6 +63,12 @@ export const MyComposition: React.FC<CompositionProps> = ({
           }}
         />
       )}
+
+      {/* Audio Track */}
+      <Audio
+        src={staticFile('audi01_clean.mp3')}
+        volume={1}
+      />
 
       {/* Black Gradient Overlay - Fades from bottom */}
       <div
@@ -108,103 +83,76 @@ export const MyComposition: React.FC<CompositionProps> = ({
         }}
       />
 
-      {/* Profile Picture - Shows from frame 13 to 289 */}
-      <ProfilePicture src={Profile_pic} startFrame={13} endFrame={289} name={name} />
+      {/* Profile Picture - Bottom Right Throughout Video */}
+      <ProfilePicture src={Profile_pic} startFrame={13} endFrame={2910} name={name} />
 
-      {/* Scene 0: Intro */}
+      {/* Scene 0: Intro - V3 BRUTALIST */}
       {frame >= scenes.intro.start && frame < scenes.intro.end && (
-        <div style={{ opacity: getSceneOpacity(scenes.intro.start, scenes.intro.end) }}>
-          <Scene0Intro name={name} startFrame={scenes.intro.start} />
-        </div>
+        <Scene0Intro name={name} startFrame={scenes.intro.start} />
       )}
 
-      {/* Scene 1: The Journey */}
+      {/* Scene 2: The Journey - V3 BRUTALIST */}
       {frame >= scenes.journey.start && frame < scenes.journey.end && (
-        <div style={{ opacity: getSceneOpacity(scenes.journey.start, scenes.journey.end) }}>
-          <Scene1Journey
-            firstBookingDate={firstBookingDate}
-            totalBookings={totalBookings}
-            startFrame={scenes.journey.start}
-          />
-        </div>
+        <Scene1Journey
+          totalBookings={totalBookings}
+          startFrame={scenes.journey.start}
+        />
       )}
 
-      {/* Scene 2: The Reach */}
+      {/* Scene 3: The Reach - V3 BRUTALIST */}
       {frame >= scenes.reach.start && frame < scenes.reach.end && (
-        <div style={{ opacity: getSceneOpacity(scenes.reach.start, scenes.reach.end) }}>
-          <Scene2Reach
-            city1={city1}
-            city2={city2}
-            startFrame={scenes.reach.start}
-          />
-        </div>
+        <Scene2Reach
+          city1={city1}
+          city2={city2}
+          uniqueCitiesCount={uniqueCitiesCount}
+          startFrame={scenes.reach.start}
+        />
       )}
 
-      {/* Scene 3: The Peak */}
+      {/* Scene 3: The Peak - V3 BRUTALIST */}
       {frame >= scenes.peak.start && frame < scenes.peak.end && (
-        <div style={{ opacity: getSceneOpacity(scenes.peak.start, scenes.peak.end) }}>
-          <Scene3Peak
-            mostBookedMonth={mostBookedMonth}
-            startFrame={scenes.peak.start}
-          />
-        </div>
+        <Scene3Peak
+          mostBookedMonth={mostBookedMonth}
+          startFrame={scenes.peak.start}
+        />
       )}
 
-      {/* Scene 4: The Signature */}
+      {/* Scene 4: The Signature - V3 BRUTALIST */}
       {frame >= scenes.signature.start && frame < scenes.signature.end && (
-        <div style={{ opacity: getSceneOpacity(scenes.signature.start, scenes.signature.end) }}>
-          <Scene4Signature
-            mostPopularService={mostPopularService}
-            startFrame={scenes.signature.start}
-          />
-        </div>
+        <Scene4Signature
+          mostPopularService={mostPopularService}
+          startFrame={scenes.signature.start}
+        />
       )}
 
-      {/* Scene 5: The Voices */}
+      {/* Scene 5: The Voices - V3 BRUTALIST */}
       {frame >= scenes.voices.start && frame < scenes.voices.end && (
-        <div style={{ opacity: getSceneOpacity(scenes.voices.start, scenes.voices.end) }}>
-          <Scene5Voices
-            testimonial={testimonial}
-            startFrame={scenes.voices.start}
-          />
-        </div>
+        <Scene5Voices
+          testimonial={testimonial}
+          testimonialGiverName={testimonialGiverName}
+          startFrame={scenes.voices.start}
+        />
       )}
 
-      {/* Scene 6: The Summit */}
+      {/* Scene 6: The Summit - V3 BRUTALIST */}
       {frame >= scenes.summit.start && frame < scenes.summit.end && (
-        <div style={{ opacity: getSceneOpacity(scenes.summit.start, scenes.summit.end) }}>
-          <Scene6Summit
-            topPercentage={topPercentage}
-            startFrame={scenes.summit.start}
-          />
-        </div>
+        <Scene6Summit
+          topPercentage={topPercentage}
+          startFrame={scenes.summit.start}
+        />
       )}
 
-      {/* Scene 7: The Stars */}
+      {/* Scene 7: The Stars - V3 BRUTALIST */}
       {frame >= scenes.stars.start && frame < scenes.stars.end && (
-        <div style={{ opacity: getSceneOpacity(scenes.stars.start, scenes.stars.end) }}>
-          <Scene7Stars
-            rating={rating}
-            startFrame={scenes.stars.start}
-          />
-        </div>
+        <Scene7Stars
+          rating={rating}
+          startFrame={scenes.stars.start}
+        />
       )}
 
-      {/* Scene 8: The Universe */}
-      {frame >= scenes.universe.start && frame < scenes.universe.end && (
-        <div style={{ opacity: getSceneOpacity(scenes.universe.start, scenes.universe.end) }}>
-          <Scene8Universe
-            name={name}
-            startFrame={scenes.universe.start}
-          />
-        </div>
-      )}
-
-      {/* Scene 9: Outro */}
+      {/* Scene 8: Outro - Calendar Flip 2025 -> 2026 */}
       {frame >= scenes.outro.start && frame < scenes.outro.end && (
-        <div style={{ opacity: getSceneOpacity(scenes.outro.start, scenes.outro.end) }}>
-          <Scene9Outro startFrame={scenes.outro.start} />
-        </div>
+        <Scene9Outro startFrame={scenes.outro.start} />
       )}
     </AbsoluteFill>
   );

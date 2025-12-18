@@ -1,53 +1,48 @@
 import { z } from 'zod';
 
+/**
+ * Topmate Year-End Recap 2025 - Props Schema
+ *
+ * All scenes use these props to dynamically generate the year-end recap video.
+ * Total Duration: 2910 frames (97 seconds at 30fps)
+ * Resolution: 1080x1080px
+ */
 export const compositionSchema = z.object({
-  // Profile Picture
-  Profile_pic: z.string(),
+  // Constant across all scenes
+  Profile_pic: z.string(), // URL to profile picture (appears bottom right throughout video)
 
-  // Scene 0: Intro & Scene 8: Universe
-  name: z.string(),
+  // Scene 1: Intro - "{NAME}'S TOPMATE RECAP 2025"
+  name: z.string(), // User's first name
 
-  // Scene 1: The Journey
-  firstBookingDate: z.string(),
-  totalBookings: z.string(),
+  // Scene 2: The Journey - "TOTAL BOOKINGS: {totalBookings}"
+  totalBookings: z.string(), // Total booking count in 2025 (e.g., "247")
 
-  // Scene 2: The Reach
-  city1: z.string(),
-  city2: z.string(),
+  // Scene 3: The Reach - "FROM {city1} TO {city2}"
+  city1: z.string(), // #1 Most booking received from city (if only one city, use same for both)
+  city2: z.string(), // #2 Most booking received from city (if only one city, use same for both)
+  uniqueCitiesCount: z.string(), // Total number of unique cities bookings received from (e.g., "12", "45")
 
-  // Scene 3: The Peak
-  mostBookedMonth: z.string(),
+  // Scene 4: The Peak - "{mostBookedMonth} WAS YOUR BUSIEST MONTH"
+  mostBookedMonth: z.string(), // Most booked month (e.g., "August", "December")
 
-  // Scene 4: The Signature
-  mostPopularService: z.string(),
+  // Scene 5: The Signature - "{mostPopularService}"
+  mostPopularService: z.string(), // Most popular service name (e.g., "1-on-1 Career Coaching")
 
-  // Scene 5: The Voices
-  testimonial: z.string(),
+  // Scene 6: The Voices - Testimonial display
+  testimonial: z.string(), // Testimonial text (preferred: 75-150 characters)
+  testimonialGiverName: z.string(), // Name of person who gave testimonial
 
-  // Scene 6: The Summit
-  topPercentage: z.string(),
+  // Scene 7: The Summit - "TOP {topPercentage}%"
+  // Calculate percentile - do not go more than 5%
+  // Base: all users in 2025 with > 2 bookings
+  topPercentage: z.string(), // Top percentile (e.g., "5", "3")
 
-  // Scene 7: The Stars
-  rating: z.string(),
+  // Scene 8: The Stars - "AVERAGE RATING {rating}/5"
+  // If rating < 4, show "4"
+  rating: z.string(), // Average rating in 2025 (e.g., "4.9", "4.5")
 
-  // Legacy fields (keeping for backwards compatibility)
-  designation: z.string(),
-  profileImage: z.string(),
-  profileViews: z.string(),
-  bookings: z.string(),
-  timeSpent: z.string(),
-  service1: z.string(),
-  service2: z.string(),
-  country1: z.string(),
-  country2: z.string(),
-  dm: z.string(),
-  badges1: z.string(),
-  badges2: z.string(),
-  badges3: z.string(),
-  badges1Icon: z.string(),
-  badges2Icon: z.string(),
-  badges3Icon: z.string(),
-  livesMoved: z.string(),
+  // Scene 9: Outro - "THAT WAS 2025" → "ONTO 2026" (no variables)
+  // Scene 10: Final frame (no variables)
 });
 
 export type CompositionProps = z.infer<typeof compositionSchema>;

@@ -6,7 +6,7 @@ export const RemotionRoot: React.FC = () => {
   return (
     <>
       <Composition
-        id="final"
+        id="TopMateRecap2025"
         component={MyComposition}
         durationInFrames={2910}
         fps={30}
@@ -14,39 +14,35 @@ export const RemotionRoot: React.FC = () => {
         height={1080}
         schema={compositionSchema}
         defaultProps={{
-          // Profile Picture
-          Profile_pic: '',
+          // Profile Picture (constant across all scenes)
+          Profile_pic: 'https://static.topmate.io/9WMZGjPLx1QxaoUmT8MZug.png',
 
-          // New Scene Props with Dummy Data
+          // Scene 1: Intro
           name: 'Sarah',
-          firstBookingDate: 'January 15, 2025',
+
+          // Scene 2: The Journey
           totalBookings: '247',
+
+          // Scene 3: The Reach
           city1: 'Mumbai',
           city2: 'Tokyo',
-          mostBookedMonth: 'August',
-          mostPopularService: '1-on-1 Career Coaching',
-          testimonial: 'Working with Sarah completely transformed my career path. Her insights were exactly what I needed.',
-          topPercentage: '5',
-          rating: '4.9',
+          uniqueCitiesCount: '12',
 
-          // Legacy Props
-          designation: '',
-          profileImage: '',
-          profileViews: '',
-          bookings: '',
-          timeSpent: '',
-          service1: '',
-          service2: '',
-          country1: '',
-          country2: '',
-          dm: '',
-          badges1: '',
-          badges2: '',
-          badges3: '',
-          badges1Icon: '',
-          badges2Icon: '',
-          badges3Icon: '',
-          livesMoved: '',
+          // Scene 4: The Peak
+          mostBookedMonth: 'August',
+
+          // Scene 5: The Signature
+          mostPopularService: '1-on-1 Career Coaching',
+
+          // Scene 6: The Voices
+          testimonial: 'Working with Sarah completely transformed my career path. Her insights were exactly what I needed.',
+          testimonialGiverName: 'Alex Johnson',
+
+          // Scene 7: The Summit
+          topPercentage: '5',
+
+          // Scene 8: The Stars
+          rating: '4.9',
         }}
       />
     </>
