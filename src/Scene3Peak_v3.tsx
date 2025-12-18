@@ -14,6 +14,10 @@ export const Scene3Peak: React.FC<Scene3PeakProps> = ({
   const frame = useCurrentFrame();
   const localFrame = frame - startFrame;
 
+  // Responsive font size based on character count
+  const charCount = mostBookedMonth.length;
+  const monthFontSize = charCount > 8 ? '140px' : '180px';
+
   // Scene fade
   const sceneOpacity = interpolate(localFrame, [0, 20], [0, 1], {
     extrapolateLeft: 'clamp',
@@ -85,7 +89,7 @@ export const Scene3Peak: React.FC<Scene3PeakProps> = ({
           <h1
             style={{
               fontFamily: '"SF Mono", "JetBrains Mono", "Roboto Mono", monospace',
-              fontSize: '180px',
+              fontSize: monthFontSize,
               fontWeight: 900,
               color: '#ffffff',
               margin: 0,

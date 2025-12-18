@@ -46,14 +46,13 @@ export const MyComposition: React.FC<CompositionProps> = ({
     outro: { start: 2328, end: 2910 },                // 582 frames (2x duration for flip animation)
   };
 
-
   return (
     <AbsoluteFill>
       {/* Background Video */}
       {frame < 2910 && (
         <OffthreadVideo
-          src={staticFile('bg_1_fixed.mp4')}
-          muted
+          src={staticFile('bg_final.mp4')}
+          
           style={{
             position: 'absolute',
             width: '100%',
@@ -63,12 +62,6 @@ export const MyComposition: React.FC<CompositionProps> = ({
           }}
         />
       )}
-
-      {/* Audio Track */}
-      <Audio
-        src={staticFile('audi01_clean.mp3')}
-        volume={1}
-      />
 
       {/* Black Gradient Overlay - Fades from bottom */}
       <div

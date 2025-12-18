@@ -20,19 +20,9 @@ export const Scene6Summit: React.FC<Scene6SummitProps> = ({
     extrapolateRight: 'clamp',
   });
 
-  // Number animation
-  const percentValue = Math.floor(
-    interpolate(
-      localFrame,
-      [10, 45],
-      [100, parseInt(topPercentage) || 5],
-      {
-        extrapolateLeft: 'clamp',
-        extrapolateRight: 'clamp',
-        easing: Easing.out(Easing.exp),
-      }
-    )
-  );
+  // Just use the exact value provided
+  const percentValue = topPercentage;
+
 
   // Scale entrance
   const numberScale = interpolate(

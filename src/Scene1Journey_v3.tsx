@@ -15,6 +15,12 @@ export const Scene1Journey: React.FC<Scene1JourneyProps> = ({
   const localFrame = frame - startFrame;
 
   const bookingsValue = parseInt(totalBookings) || 247;
+
+  // Responsive font size based on digit count
+  const digitCount = totalBookings.replace(/,/g, '').length;
+  const numberFontSize = digitCount >= 7 ? '140px' 
+                       : digitCount === 6 ? '180px'
+                       : '260px';
   const sceneDuration = 291; // Total scene duration
 
   // Scene fade
@@ -153,7 +159,7 @@ export const Scene1Journey: React.FC<Scene1JourneyProps> = ({
           <h1
             style={{
               fontFamily: FONT_FAMILY,
-              fontSize: '260px',
+              fontSize: numberFontSize,
               fontWeight: 900,
               color: '#ffffff',
               margin: 0,
