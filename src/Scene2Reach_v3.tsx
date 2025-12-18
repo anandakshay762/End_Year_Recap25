@@ -145,7 +145,7 @@ export const Scene2Reach: React.FC<Scene2ReachProps> = ({
           >
             <h1
               style={{
-                fontFamily: '"SF Mono", "JetBrains Mono", "Roboto Mono", monospace',
+                fontFamily: FONT_FAMILY,
                 fontSize: '120px',
                 fontWeight: 900,
                 color: '#ffffff',
@@ -190,7 +190,7 @@ export const Scene2Reach: React.FC<Scene2ReachProps> = ({
           >
             <h1
               style={{
-                fontFamily: '"SF Mono", "JetBrains Mono", "Roboto Mono", monospace',
+                fontFamily: FONT_FAMILY,
                 fontSize: '120px',
                 fontWeight: 900,
                 color: '#ffffff',

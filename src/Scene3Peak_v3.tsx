@@ -88,7 +88,7 @@ export const Scene3Peak: React.FC<Scene3PeakProps> = ({
         >
           <h1
             style={{
-              fontFamily: '"SF Mono", "JetBrains Mono", "Roboto Mono", monospace',
+              fontFamily: FONT_FAMILY,
               fontSize: monthFontSize,
               fontWeight: 900,
               color: '#ffffff',

@@ -115,7 +115,7 @@ export const Scene0Intro: React.FC<Scene0IntroProps> = ({
         >
           <h1
             style={{
-              fontFamily: '"SF Mono", "JetBrains Mono", "Roboto Mono", monospace',
+              fontFamily: FONT_FAMILY,
               fontSize: '260px',
               fontWeight: 900,
               color: '#ffffff',

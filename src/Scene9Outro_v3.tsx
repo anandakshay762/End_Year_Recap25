@@ -45,46 +45,62 @@ export const Scene9Outro: React.FC<Scene9OutroProps> = ({ startFrame }) => {
     }
   );
 
-  // Calendar flip transition from 2025 to 2026
-  // Slowed down: Starts at frame 130 (hold 2025 longer), completes by frame 160
-  const flipProgress = interpolate(
-    localFrame,
-    [130, 160],
-    [0, 1],
-    {
-      extrapolateLeft: 'clamp',
-      extrapolateRight: 'clamp',
-      easing: Easing.inOut(Easing.cubic),
-    }
-  );
-
-  // 2025 flips up and fades out
-  const year2025FlipRotation = interpolate(flipProgress, [0, 1], [0, -90]);
-  const year2025FlipOpacity = interpolate(flipProgress, [0, 0.5], [1, 0], {
-    extrapolateRight: 'clamp',
-  });
-
-  // 2026 flips down from top
-  const year2026FlipRotation = interpolate(flipProgress, [0, 1], [90, 0]);
-  const year2026FlipOpacity = interpolate(flipProgress, [0.5, 1], [0, 1], {
-    extrapolateLeft: 'clamp',
-  });
-
-  // "ONTO" label - appears during flip
-  const ontoOpacity = interpolate(localFrame, [120, 140], [0, 1], {
+  // 2025 fades out before "onto the next chapter"
+  const year2025FadeOut = interpolate(localFrame, [140, 160], [1, 0], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
   });
 
-  const ontoY = interpolate(localFrame, [120, 140], [20, 0], {
+  // "onto" (small text) appears at frame 160 (absolute frame 2488)
+  const ontoSmallOpacity = interpolate(localFrame, [160, 180], [0, 1], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+  });
+
+  const ontoSmallY = interpolate(localFrame, [160, 180], [20, 0], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
     easing: Easing.out(Easing.cubic),
   });
 
-  // Show "THAT WAS" before flip, "ONTO" during/after flip
-  const showThatWas = localFrame < 120;
-  const showOnto = localFrame >= 120;
+  // "the next chapter" (big/bold text) appears at frame 160 (absolute frame 2488)
+  const nextChapterOpacity = interpolate(localFrame, [165, 185], [0, 1], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+  });
+
+  const nextChapterScale = interpolate(
+    localFrame,
+    [165, 195],
+    [1.4, 1],
+    {
+      extrapolateLeft: 'clamp',
+      extrapolateRight: 'clamp',
+      easing: Easing.out(Easing.exp),
+    }
+  );
+
+  // 2026 appears at frame 380 (absolute frame 2708)
+  const year2026Opacity = interpolate(localFrame, [380, 400], [0, 1], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+  });
+
+  const year2026Scale = interpolate(
+    localFrame,
+    [380, 410],
+    [1.4, 1],
+    {
+      extrapolateLeft: 'clamp',
+      extrapolateRight: 'clamp',
+      easing: Easing.out(Easing.exp),
+    }
+  );
+
+  // Show different states
+  const showThatWas = localFrame < 160;
+  const showOntoNextChapter = localFrame >= 160 && localFrame < 380;
+  const show2026 = localFrame >= 380;
 
   return (
     <AbsoluteFill
@@ -99,7 +115,7 @@ export const Scene9Outro: React.FC<Scene9OutroProps> = ({ startFrame }) => {
     >
       {/* Main Content */}
       <div style={{ position: 'relative', zIndex: 2, maxWidth: '90%' }}>
-        {/* Top Label - switches from "THAT WAS" to "ONTO" */}
+        {/* Top Label - switches from "THAT WAS" to "onto" */}
         <div
           style={{
             marginBottom: '12px',
@@ -126,7 +142,7 @@ export const Scene9Outro: React.FC<Scene9OutroProps> = ({ startFrame }) => {
               THAT WAS
             </p>
           )}
-          {showOnto && (
+          {(showOntoNextChapter || show2026) && (
             <p
               style={{
                 fontFamily: FONT_FAMILY,
@@ -134,38 +150,33 @@ export const Scene9Outro: React.FC<Scene9OutroProps> = ({ startFrame }) => {
                 fontWeight: 300,
                 color: '#ffffff',
                 margin: 0,
-                textTransform: 'uppercase',
+                textTransform: 'lowercase',
                 letterSpacing: '-1px',
-                opacity: ontoOpacity,
-                transform: `translateY(${ontoY}px)`,
+                opacity: ontoSmallOpacity,
+                transform: `translateY(${ontoSmallY}px)`,
                 position: 'absolute',
               }}
             >
-              ONTO
+              onto
             </p>
           )}
         </div>
 
-        {/* Year Container - for flip effect */}
+        {/* Year/Text Container */}
         <div
           style={{
             position: 'relative',
             marginBottom: '32px',
-            perspective: '2000px',
             height: '260px',
           }}
         >
-          {/* 2025 - flips up and out */}
-          {localFrame < 155 && (
+          {/* 2025 - fades out */}
+          {localFrame < 160 && (
             <div
               style={{
                 position: 'absolute',
                 top: 0,
                 left: 0,
-                transformOrigin: 'center bottom',
-                transform: `rotateX(${year2025FlipRotation}deg)`,
-                opacity: year2025Opacity * year2025FlipOpacity,
-                transformStyle: 'preserve-3d',
               }}
             >
               <h1
@@ -178,6 +189,7 @@ export const Scene9Outro: React.FC<Scene9OutroProps> = ({ startFrame }) => {
                   lineHeight: 0.8,
                   letterSpacing: '-10px',
                   textShadow: '0 10px 60px rgba(0, 0, 0, 1)',
+                  opacity: year2025Opacity * year2025FadeOut,
                 }}
               >
                 2025
@@ -185,17 +197,47 @@ export const Scene9Outro: React.FC<Scene9OutroProps> = ({ startFrame }) => {
             </div>
           )}
 
-          {/* 2026 - flips down from top */}
-          {localFrame >= 130 && (
+          {/* "the next chapter" - appears at frame 160 (absolute 2488) */}
+          {showOntoNextChapter && (
             <div
               style={{
                 position: 'absolute',
                 top: 0,
                 left: 0,
-                transformOrigin: 'center bottom',
-                transform: `rotateX(${year2026FlipRotation}deg)`,
-                opacity: year2026FlipOpacity,
-                transformStyle: 'preserve-3d',
+                opacity: nextChapterOpacity,
+                transform: `scale(${nextChapterScale})`,
+                transformOrigin: 'left top',
+              }}
+            >
+              <h1
+                style={{
+                  fontFamily: FONT_FAMILY,
+                  fontSize: '120px',
+                  fontWeight: 900,
+                  color: '#ffffff',
+                  margin: 0,
+                  lineHeight: 1,
+                  letterSpacing: '-4px',
+                  textShadow: '0 10px 60px rgba(0, 0, 0, 1)',
+                  textTransform: 'uppercase',
+                  whiteSpace: 'pre-line',
+                  maxWidth: '800px',
+                }}
+              >
+                {'the next\nchapter'}
+              </h1>
+            </div>
+          )}
+
+          {/* 2026 - appears at frame 380 (absolute 2708) */}
+          {show2026 && (
+            <div
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                transform: `scale(${year2026Scale})`,
+                transformOrigin: 'left top',
               }}
             >
               <h1
@@ -208,6 +250,7 @@ export const Scene9Outro: React.FC<Scene9OutroProps> = ({ startFrame }) => {
                   lineHeight: 0.8,
                   letterSpacing: '-10px',
                   textShadow: '0 10px 60px rgba(0, 0, 0, 1)',
+                  opacity: year2026Opacity,
                 }}
               >
                 2026
