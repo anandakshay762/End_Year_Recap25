@@ -1,0 +1,7 @@
+/.claude
+node_modules/
+node_modules/.cache/
+node_modules/.remotion/
+out/
+*.log
+public/loop-sharing-template.mp4
