@@ -1,5 +1,5 @@
 import React from 'react';
-import { AbsoluteFill, OffthreadVideo, staticFile, useCurrentFrame, useVideoConfig, interpolate, spring } from 'remotion';
+import { AbsoluteFill, OffthreadVideo, staticFile, useCurrentFrame, interpolate } from 'remotion';
 import { LoopSharingProps } from './types';
 
 const IMAGE_START_FRAME = 1118; // 37.25s × 30fps
@@ -7,24 +7,13 @@ const SCALE_END_FRAME = 1235;   // 00:41.05 timecode (41s + 5 frames)
 
 export const LoopSharingTemplate: React.FC<LoopSharingProps> = ({ profile_pic }) => {
   const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
 
-  // Pop entrance: spring bounces from 0 → ~1.2 → 1.0
-  const popScale = spring({
-    frame: frame - IMAGE_START_FRAME,
-    fps,
-    config: { damping: 10, stiffness: 280, mass: 0.5 },
-  });
-
-  // Gradual scale up from entry point to 41.06s
-  const gradualScale = interpolate(
+  const scale = interpolate(
     frame,
     [IMAGE_START_FRAME, SCALE_END_FRAME],
     [1, 1.4],
     { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
   );
-
-  const scale = popScale * gradualScale;
 
   const imageStyle: React.CSSProperties = {
     position: 'absolute',
