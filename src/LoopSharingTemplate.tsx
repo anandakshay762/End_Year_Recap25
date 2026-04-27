@@ -39,7 +39,7 @@ export const LoopSharingTemplate: React.FC<LoopSharingProps> = ({ profile_pic })
   return (
     <AbsoluteFill style={{ backgroundColor: '#000' }}>
       <OffthreadVideo
-        src={staticFile('loop-sharing-template.mp4')}
+        src={staticFile('loop-launch-sharing-template.mp4')}
         style={{ width: '100%', height: '100%', objectFit: 'cover' }}
       />
 
@@ -49,8 +49,8 @@ export const LoopSharingTemplate: React.FC<LoopSharingProps> = ({ profile_pic })
             src={profile_pic}
             style={{
               ...imageStyle,
-              maxWidth: '80%',
-              maxHeight: '80%',
+              width: 500,
+              height: 500,
               objectFit: 'contain',
             }}
           />
@@ -58,8 +58,8 @@ export const LoopSharingTemplate: React.FC<LoopSharingProps> = ({ profile_pic })
           <div
             style={{
               ...imageStyle,
-              width: 400,
-              height: 400,
+              width: 500,
+              height: 500,
               backgroundColor: 'rgba(255,255,255,0.15)',
               border: '3px dashed rgba(255,255,255,0.5)',
               borderRadius: 16,
