@@ -111,6 +111,7 @@ export const Main: React.FC<MainProps> = ({
       <AbsoluteFill style={{ zIndex: 0 }}>
         <Video
           src={staticFile("testimonial/bg.mp4")}
+          loop
           style={{
             width: "100%",
             height: "100%",
