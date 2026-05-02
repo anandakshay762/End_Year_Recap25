@@ -9,6 +9,7 @@ import {
   useVideoConfig,
 } from "remotion";
 import { TestimonialCard, type Testimonial } from "./TestimonialCard";
+import { TestimonialReelProps } from "./types";
 
 const DEFAULT_TESTIMONIALS_TEXT = [
   "KlickPin completely transformed our online presence. Traffic doubled in 3 months and our conversion rate has never been better. Truly grateful for this team!",
@@ -18,29 +19,14 @@ const DEFAULT_TESTIMONIALS_TEXT = [
   "Their expertise in social media and paid campaigns is unmatched. They really listen to your goals and build strategies that actually work. Highly recommend!",
 ];
 
-const createData = (names: string[], testimonials: string[]): Testimonial[] => [
-  {
-    name: names[0] || "User 1",
+const createData = (names: string[], testimonials: string[]): Testimonial[] =>
+  Array.from({ length: 5 }, (_, i) => ({
+    name: names[i] || `User ${i + 1}`,
     role: "",
     avatarUrl: "",
     rating: 5,
-    text: testimonials[0] || DEFAULT_TESTIMONIALS_TEXT[0],
-  },
-  {
-    name: names[1] || "User 2",
-    role: "",
-    avatarUrl: "",
-    rating: 5,
-    text: testimonials[1] || DEFAULT_TESTIMONIALS_TEXT[1],
-  },
-  {
-    name: names[2] || "User 3",
-    role: "",
-    avatarUrl: "",
-    rating: 5,
-    text: testimonials[2] || DEFAULT_TESTIMONIALS_TEXT[2],
-  },
-];
+    text: testimonials[i] || DEFAULT_TESTIMONIALS_TEXT[i],
+  }));
 
 // ─────────────────────────────────────────────────────────────────────────────
 // LAYOUT CONSTANTS  (1920 × 1080 landscape) - 18 SECONDS TOTAL
@@ -59,21 +45,7 @@ const SCROLL_OFFSET = 250;
 // ─────────────────────────────────────────────────────────────────────────────
 // TYPES
 // ─────────────────────────────────────────────────────────────────────────────
-export interface MainProps {
-  profilePic?: string;
-  topmateLink?: string;
-  creatorName?: string;
-  name1?: string;
-  name2?: string;
-  name3?: string;
-  name4?: string;
-  name5?: string;
-  testimonial1?: string;
-  testimonial2?: string;
-  testimonial3?: string;
-  testimonial4?: string;
-  testimonial5?: string;
-}
+export type MainProps = TestimonialReelProps;
 
 const SPRING_CFG = { stiffness: 100, damping: 15 } as const;
 
@@ -83,6 +55,7 @@ const SPRING_CFG = { stiffness: 100, damping: 15 } as const;
 export const Main: React.FC<MainProps> = ({
   profilePic,
   topmateLink,
+  creatorName,
   name1 = "",
   name2 = "",
   name3 = "",
@@ -98,8 +71,8 @@ export const Main: React.FC<MainProps> = ({
   const { fps, durationInFrames } = useVideoConfig();
 
   const DATA = createData(
-    [name1, name2, name3],
-    [testimonial1, testimonial2, testimonial3]
+    [name1, name2, name3, name4, name5],
+    [testimonial1, testimonial2, testimonial3, testimonial4, testimonial5],
   );
 
   const adjustedFrame = Math.max(0, frame - INTRO_DURATION);
@@ -233,16 +206,21 @@ export const Main: React.FC<MainProps> = ({
                 margin: 0,
               }}
             >
-              My testimonials at{" "}
-              <span
-                style={{
-                  background: "linear-gradient(90deg, #FACC15, #FDE68A)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                }}
-              >
-                topmate
-              </span>
+              {creatorName ? `${creatorName}'s testimonials` : "My testimonials"}
+              {!creatorName && (
+                <>
+                  {" at "}
+                  <span
+                    style={{
+                      background: "linear-gradient(90deg, #FACC15, #FDE68A)",
+                      WebkitBackgroundClip: "text",
+                      WebkitTextFillColor: "transparent",
+                    }}
+                  >
+                    topmate
+                  </span>
+                </>
+              )}
             </h2>
             <div
               style={{
