@@ -268,7 +268,6 @@ async function startRender(username, user_id, filmName) {
     );
   }
 
-  const COMPOSITION_ID = film.compositionId;
   const jobId = `${username}-${Date.now()}`;
   const tailFile = `_tail-${jobId}.mp4`;
   const finalFile = `${jobId}.mp4`;
@@ -276,12 +275,10 @@ async function startRender(username, user_id, filmName) {
   const finalPath = path.join(OUT_DIR, finalFile);
   const t0 = Date.now();
 
-  const { inputProps: prefetchedProps } = await film.prefetch(username, API_BASE);
-  const { profile_pic } = prefetchedProps;
-  const inputProps = { username, apiBase: API_BASE, profile_pic };
+  const { inputProps } = await film.prefetch(username, API_BASE);
   const tFetch = Date.now() - t0;
 
-  const composition = await selectComposition({ serveUrl, id: COMPOSITION_ID, inputProps });
+  const composition = await selectComposition({ serveUrl, id: film.compositionId, inputProps });
   const tSelect = Date.now() - t0;
 
   jobs.set(jobId, { status: 'rendering', progress: 0, fileName: finalFile, username, user_id, film, filmName, error: null, share: null });

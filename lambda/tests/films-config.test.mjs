@@ -86,10 +86,11 @@ test('testimonial-reel: backfills from public-testimonials when visible has fewe
   };
   const { inputProps, raw } = await f.prefetch('x', 'https://api.example.com');
   assert.equal(raw.qualifyingCount, 3);
-  // id-DESC sort: 10 (visible "P"), 9 (anonymous), 8 (no name)
+  // id-DESC sort: 10 (visible "P"), 9 + 8 (public — both default to
+  // 'Anonymous' since public-testimonials never exposes follower_name).
   assert.equal(inputProps.name1, 'P');
   assert.equal(inputProps.name2, 'Anonymous');
-  assert.equal(inputProps.name3, '');
+  assert.equal(inputProps.name3, 'Anonymous');
   assert.equal(inputProps.avatar3, 'q.jpg');
 });
 

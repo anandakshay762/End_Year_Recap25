@@ -82,7 +82,10 @@ export const films = {
             if (text.length < MIN_TESTIMONIAL_LEN) continue;
             qualifying.push({
               id: t.id,
-              name: t.is_anonymous ? 'Anonymous' : '',
+              // public-testimonials doesn't expose follower_name, so we don't
+              // know the name regardless of is_anonymous. Default to
+              // 'Anonymous' — better than the composition's "User N" fallback.
+              name: 'Anonymous',
               text,
               avatar: t.profile_pic || '',
             });
