@@ -1,19 +1,20 @@
-// Stateless orchestrator for the Loop launch film popup.
+// Stateless orchestrator for personalized films (Loop launch + testimonial reel + …).
 // Deployed in account 072528252688 (us-east-1) as a Lambda Function URL.
 //
 // Routes:
-//   POST /render { username, user_id }  → kick off Remotion Lambda render
-//   GET  /progress/:renderId?user_id=N  → poll progress; on done, register UserShareContent
-//   GET  /health                        → liveness
+//   POST /render { username, user_id, film }            → kick off render
+//   GET  /progress/:renderId?user_id=N&film=<id>        → poll, on done copy + register share
+//   GET  /eligibility/:film/:username                   → cheap (no render) eligibility check
+//   GET  /health                                        → liveness
 //
-// State is externalized: jobId == Remotion's renderId (Lambda tracks its own
-// render state); per-user cache is an S3 HEAD on a deterministic key.
+// State is externalized: anonymous S3 HEAD on `<film.outDir>/<username>.mp4` is the cache.
 
 import {
   renderMediaOnLambda,
   getRenderProgress,
 } from '@remotion/lambda/client';
 import { S3Client, CopyObjectCommand } from '@aws-sdk/client-s3';
+import { films } from './films.config.mjs';
 
 const FUNCTION = process.env.LAMBDA_FUNCTION;
 const REGION = process.env.LAMBDA_REGION || 'us-east-1';
@@ -21,11 +22,6 @@ const SERVE_URL = process.env.LAMBDA_SERVE_URL;
 const BUCKET = process.env.LAMBDA_BUCKET || 'remotionlambda-useast1-unuossiqe1';
 const BACKEND = (process.env.BACKEND_URL || 'https://api.galactus.run').replace(/\/$/, '');
 const TOKEN = process.env.REMOTION_TOKEN || '';
-const FRAMES_PER_LAMBDA = Number(process.env.LAMBDA_FRAMES_PER_LAMBDA || 80);
-const COMPOSITION = 'loop-sharing-template';
-const CAMPAIGN = 'loop_video_sharing';
-const SHARE_TITLE = 'Topmate Loop launch film';
-const SHARE_DESCRIPTION = 'Your one-of-one launch film for Loop';
 
 const s3 = new S3Client({ region: REGION });
 
@@ -41,7 +37,7 @@ const cors = ({ statusCode = 200, body = null } = {}) => ({
 });
 
 const publicS3Url = (key) => `https://s3.${REGION}.amazonaws.com/${BUCKET}/${key}`;
-const filmKey = (username) => `launch-films/${username}.mp4`;
+const filmKey = (film, username) => `${film.outDir}/${username}.mp4`;
 
 async function s3Exists(key) {
   try {
@@ -52,19 +48,7 @@ async function s3Exists(key) {
   }
 }
 
-async function fetchUserData(username) {
-  const r = await fetch(`${BACKEND}/year-end-recap/${encodeURIComponent(username)}/`);
-  if (r.status === 404) {
-    const err = new Error(`User '${username}' not found on ${BACKEND}`);
-    err.code = 'USER_NOT_FOUND';
-    throw err;
-  }
-  if (!r.ok) throw new Error(`HTTP ${r.status} from ${BACKEND}`);
-  const data = await r.json();
-  return { profile_pic: data?.profile_pic ?? data?.data?.profile_pic ?? '' };
-}
-
-async function registerShareContent({ user_id, video_url }) {
+async function registerShareContent({ user_id, video_url, film }) {
   if (!user_id || !TOKEN) return { skipped: 'missing user_id or token' };
   const r = await fetch(`${BACKEND}/create-topmate-recap-share-content/`, {
     method: 'POST',
@@ -75,9 +59,9 @@ async function registerShareContent({ user_id, video_url }) {
     body: JSON.stringify({
       user_id: Number(user_id),
       video_url,
-      campaign: CAMPAIGN,
-      title: SHARE_TITLE,
-      description: SHARE_DESCRIPTION,
+      campaign: film.share.campaign,
+      title: film.share.title,
+      description: film.share.description,
     }),
   });
   const body = await r.json().catch(() => ({}));
@@ -87,42 +71,58 @@ async function registerShareContent({ user_id, video_url }) {
   return { ok: true };
 }
 
+// ───────── route handlers ─────────
+
 async function handleRender(event) {
   let body = {};
   try { body = JSON.parse(event.body || '{}'); } catch {}
   const username = (body.username || '').trim();
   const user_id = body.user_id;
+  // Back-compat: existing TopMateRecapPopup omits `film`. Default to loop until
+  // it's retired (Phase 3 ships the new popup behind a flag; until 100%
+  // rollout, both clients hit this Lambda).
+  const filmKeyName = body.film || 'loop-sharing-template';
+  const film = films[filmKeyName];
   if (!username) return cors({ statusCode: 400, body: { error: 'username required' } });
+  if (!film) return cors({ statusCode: 400, body: { error: 'unknown_film' } });
 
-  const key = filmKey(username);
+  const key = filmKey(film, username);
 
+  // 1. Cache hit → re-register share + return.
   if (await s3Exists(key)) {
     const url = publicS3Url(key);
-    const share = await registerShareContent({ user_id, video_url: url });
+    const share = await registerShareContent({ user_id, video_url: url, film });
     return cors({ body: { status: 'ready', video_url: url, cached: true, share } });
   }
 
-  let profile_pic = '';
+  // 2. Prefetch + eligibility.
+  let inputProps;
+  let raw;
   try {
-    ({ profile_pic } = await fetchUserData(username));
+    ({ inputProps, raw } = await film.prefetch(username, BACKEND));
   } catch (err) {
     if (err.code === 'USER_NOT_FOUND') {
       return cors({ statusCode: 404, body: { error: err.message } });
     }
-    return cors({ statusCode: 500, body: { error: String(err.message || err) } });
+    return cors({ statusCode: 502, body: { error: 'backend_unavailable', detail: String(err.message || err) } });
+  }
+  const elig = film.eligibility(raw);
+  if (!elig.ok) {
+    return cors({ statusCode: 422, body: { error: 'not_eligible', reason: elig.reason } });
   }
 
+  // 3. Dispatch render.
   try {
     const { renderId } = await renderMediaOnLambda({
       functionName: FUNCTION,
       region: REGION,
       serveUrl: SERVE_URL,
-      composition: COMPOSITION,
+      composition: film.compositionId,
       codec: 'h264',
-      inputProps: { username, apiBase: BACKEND, profile_pic },
+      inputProps,
       privacy: 'public',
       outName: key,
-      framesPerLambda: FRAMES_PER_LAMBDA,
+      framesPerLambda: film.framesPerLambda,
       scale: 0.5,
       x264Preset: 'ultrafast',
       crf: 26,
@@ -130,7 +130,7 @@ async function handleRender(event) {
       audioCodec: 'aac',
       audioBitrate: '128k',
     });
-    return cors({ body: { status: 'rendering', jobId: renderId } });
+    return cors({ body: { status: 'rendering', jobId: renderId, film: filmKeyName } });
   } catch (err) {
     return cors({ statusCode: 500, body: { error: String(err.message || err) } });
   }
@@ -138,13 +138,14 @@ async function handleRender(event) {
 
 async function handleProgress(event, renderId) {
   const user_id = event.queryStringParameters?.user_id;
+  const filmKeyName = event.queryStringParameters?.film || 'loop-sharing-template';
+  const film = films[filmKeyName];
+  if (!film) return cors({ statusCode: 400, body: { error: 'unknown_film' } });
+
   let p;
   try {
     p = await getRenderProgress({
-      renderId,
-      bucketName: BUCKET,
-      functionName: FUNCTION,
-      region: REGION,
+      renderId, bucketName: BUCKET, functionName: FUNCTION, region: REGION,
     });
   } catch (err) {
     return cors({ statusCode: 500, body: { status: 'error', error: String(err.message || err) } });
@@ -155,30 +156,22 @@ async function handleProgress(event, renderId) {
     return cors({ statusCode: 500, body: { status: 'error', error: errMsg || 'Lambda render failed' } });
   }
 
-  if (!p.done) {
-    return cors({ body: { status: 'rendering', progress: p.overallProgress } });
-  }
+  if (!p.done) return cors({ body: { status: 'rendering', progress: p.overallProgress } });
 
+  // Render done. Copy renders/<renderId>/<outName> → <outDir>/<username>.mp4
+  // so subsequent /render hits cache.
   let videoUrl = p.outputFile;
   try {
     const out = new URL(p.outputFile);
     const segments = out.pathname.split('/').filter(Boolean);
-    let key;
-    if (segments[0] === BUCKET) {
-      key = segments.slice(1).join('/');
-    } else {
-      key = segments.join('/');
-    }
-    const usernameMatch = key.match(/launch-films\/([^/]+)\.mp4$/);
-    if (usernameMatch) {
-      const username = usernameMatch[1];
-      const destKey = filmKey(username);
+    const key = segments[0] === BUCKET ? segments.slice(1).join('/') : segments.join('/');
+    const match = key.match(new RegExp(`${film.outDir}/([^/]+)\\.mp4$`));
+    if (match) {
+      const username = match[1];
+      const destKey = filmKey(film, username);
       await s3.send(new CopyObjectCommand({
-        Bucket: BUCKET,
-        CopySource: encodeURI(`${BUCKET}/${key}`),
-        Key: destKey,
-        ACL: 'public-read',
-        ContentType: 'video/mp4',
+        Bucket: BUCKET, CopySource: encodeURI(`${BUCKET}/${key}`),
+        Key: destKey, ACL: 'public-read', ContentType: 'video/mp4',
         MetadataDirective: 'REPLACE',
       }));
       videoUrl = publicS3Url(destKey);
@@ -187,10 +180,23 @@ async function handleProgress(event, renderId) {
     console.error('[copy] failed:', err?.name, err?.message);
   }
 
-  const share = await registerShareContent({ user_id, video_url: videoUrl });
-  return cors({
-    body: { status: 'ready', progress: 1, video_url: videoUrl, share },
-  });
+  const share = await registerShareContent({ user_id, video_url: videoUrl, film });
+  return cors({ body: { status: 'ready', progress: 1, video_url: videoUrl, share } });
+}
+
+async function handleEligibility(event, filmKeyName, username) {
+  const film = films[filmKeyName];
+  if (!film) return cors({ statusCode: 400, body: { error: 'unknown_film' } });
+  if (!username) return cors({ statusCode: 400, body: { error: 'username required' } });
+  try {
+    const { raw } = await film.prefetch(username, BACKEND);
+    return cors({ body: film.eligibility(raw) });
+  } catch (err) {
+    if (err.code === 'USER_NOT_FOUND') {
+      return cors({ statusCode: 404, body: { error: err.message } });
+    }
+    return cors({ statusCode: 502, body: { error: 'backend_unavailable', detail: String(err.message || err) } });
+  }
 }
 
 export const handler = async (event) => {
@@ -202,8 +208,13 @@ export const handler = async (event) => {
   if (method === 'POST' && path === '/render') return handleRender(event);
   if (method === 'GET' && path.startsWith('/progress/')) {
     const renderId = path.slice('/progress/'.length);
-    if (!renderId) return cors({ statusCode: 400, body: { error: 'renderId required' } });
-    return handleProgress(event, renderId);
+    return renderId
+      ? handleProgress(event, renderId)
+      : cors({ statusCode: 400, body: { error: 'renderId required' } });
+  }
+  if (method === 'GET' && path.startsWith('/eligibility/')) {
+    const [filmName, username] = path.slice('/eligibility/'.length).split('/');
+    return handleEligibility(event, filmName, username);
   }
   return cors({ statusCode: 404, body: { error: 'not found', path, method } });
 };
