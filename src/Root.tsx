@@ -77,6 +77,7 @@ export const RemotionRoot: React.FC = () => {
           creatorName: 'Preview',
           name1: '', name2: '', name3: '',
           testimonial1: '', testimonial2: '', testimonial3: '',
+          avatar1: '', avatar2: '', avatar3: '',
         }}
       />
     </>

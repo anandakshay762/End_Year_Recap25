@@ -18,11 +18,15 @@ const DEFAULT_TESTIMONIALS_TEXT = [
   "We needed a complete digital overhaul and they delivered beyond expectations. The new site is stunning, and SEM campaigns generate consistent quality leads.",
 ];
 
-const createData = (names: string[], testimonials: string[]): Testimonial[] =>
+const createData = (
+  names: string[],
+  testimonials: string[],
+  avatars: string[],
+): Testimonial[] =>
   Array.from({ length: 3 }, (_, i) => ({
     name: names[i] || `User ${i + 1}`,
     role: "",
-    avatarUrl: "",
+    avatarUrl: avatars[i] || "",
     rating: 5,
     text: testimonials[i] || DEFAULT_TESTIMONIALS_TEXT[i],
   }));
@@ -61,6 +65,9 @@ export const Main: React.FC<MainProps> = ({
   testimonial1 = "",
   testimonial2 = "",
   testimonial3 = "",
+  avatar1 = "",
+  avatar2 = "",
+  avatar3 = "",
 }) => {
   const frame = useCurrentFrame();
   const { fps, durationInFrames } = useVideoConfig();
@@ -68,6 +75,7 @@ export const Main: React.FC<MainProps> = ({
   const DATA = createData(
     [name1, name2, name3],
     [testimonial1, testimonial2, testimonial3],
+    [avatar1, avatar2, avatar3],
   );
 
   const adjustedFrame = Math.max(0, frame - INTRO_DURATION);

@@ -1,5 +1,5 @@
 import React from "react";
-import { interpolate, interpolateColors, spring, useVideoConfig } from "remotion";
+import { Img, interpolate, interpolateColors, spring, useVideoConfig } from "remotion";
 import { StarRating } from "./StarRating";
 import { FlowerAvatar } from "./FlowerAvatar";
 
@@ -166,7 +166,15 @@ export const TestimonialCard: React.FC<Props> = ({
                 : "none",
             }}
           >
-            <FlowerAvatar index={index} name={testimonial.name} size={80} />
+            {testimonial.avatarUrl ? (
+              <Img
+                src={testimonial.avatarUrl}
+                alt={testimonial.name}
+                style={{ width: 80, height: 80, objectFit: "cover", display: "block" }}
+              />
+            ) : (
+              <FlowerAvatar index={index} name={testimonial.name} size={80} />
+            )}
           </div>
 
           {/* Name */}
