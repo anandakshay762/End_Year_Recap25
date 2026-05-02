@@ -2,6 +2,9 @@ import { Composition } from 'remotion';
 import { MyComposition } from './Composition';
 import { LoopSharingTemplate } from './LoopSharingTemplate';
 import { compositionSchema, loopSharingSchema } from './types';
+import './testimonial/load-testimonial-fonts';
+import { Main as TestimonialMain } from './testimonial/Main';
+import { testimonialReelSchema } from './testimonial/types';
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -58,6 +61,23 @@ export const RemotionRoot: React.FC = () => {
           badges2Icon: '',
           badges3Icon: '',
           livesMoved: '',
+        }}
+      />
+      <Composition
+        id="testimonial-reel"
+        component={TestimonialMain}
+        durationInFrames={366}
+        fps={30}
+        width={1920}
+        height={1080}
+        schema={testimonialReelSchema}
+        defaultProps={{
+          profilePic: '',
+          topmateLink: 'https://topmate.io/preview',
+          creatorName: 'Preview',
+          name1: '', name2: '', name3: '', name4: '', name5: '',
+          testimonial1: '', testimonial2: '', testimonial3: '',
+          testimonial4: '', testimonial5: '',
         }}
       />
     </>
