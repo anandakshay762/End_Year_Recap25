@@ -66,7 +66,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition
         id="testimonial-reel"
         component={TestimonialMain}
-        durationInFrames={366}
+        durationInFrames={480}
         fps={30}
         width={1920}
         height={1080}
@@ -75,9 +75,8 @@ export const RemotionRoot: React.FC = () => {
           profilePic: '',
           topmateLink: 'https://topmate.io/preview',
           creatorName: 'Preview',
-          name1: '', name2: '', name3: '', name4: '', name5: '',
+          name1: '', name2: '', name3: '',
           testimonial1: '', testimonial2: '', testimonial3: '',
-          testimonial4: '', testimonial5: '',
         }}
       />
     </>

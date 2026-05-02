@@ -1,6 +1,7 @@
 import React from "react";
 import {
   AbsoluteFill,
+  Img,
   Video,
   interpolate,
   spring,
@@ -15,12 +16,10 @@ const DEFAULT_TESTIMONIALS_TEXT = [
   "KlickPin completely transformed our online presence. Traffic doubled in 3 months and our conversion rate has never been better. Truly grateful for this team!",
   "The SEO strategy they built for us was phenomenal. We moved from page 5 to page 1 for every target keyword. The ROI has been incredible — worth every penny.",
   "We needed a complete digital overhaul and they delivered beyond expectations. The new site is stunning, and SEM campaigns generate consistent quality leads.",
-  "Exceptional creative work combined with data-driven results. Our brand awareness in the SEA market has grown significantly since we partnered with this team.",
-  "Their expertise in social media and paid campaigns is unmatched. They really listen to your goals and build strategies that actually work. Highly recommend!",
 ];
 
 const createData = (names: string[], testimonials: string[]): Testimonial[] =>
-  Array.from({ length: 5 }, (_, i) => ({
+  Array.from({ length: 3 }, (_, i) => ({
     name: names[i] || `User ${i + 1}`,
     role: "",
     avatarUrl: "",
@@ -33,7 +32,7 @@ const createData = (names: string[], testimonials: string[]): Testimonial[] =>
 // ─────────────────────────────────────────────────────────────────────────────
 
 const INTRO_DURATION = 60;
-const FRAMES_PER_CARD = 84;
+const FRAMES_PER_CARD = 120;
 const OUTRO_DURATION = 60;
 
 /** Horizontal inset for cards on each side. */
@@ -59,20 +58,16 @@ export const Main: React.FC<MainProps> = ({
   name1 = "",
   name2 = "",
   name3 = "",
-  name4 = "",
-  name5 = "",
   testimonial1 = "",
   testimonial2 = "",
   testimonial3 = "",
-  testimonial4 = "",
-  testimonial5 = "",
 }) => {
   const frame = useCurrentFrame();
   const { fps, durationInFrames } = useVideoConfig();
 
   const DATA = createData(
-    [name1, name2, name3, name4, name5],
-    [testimonial1, testimonial2, testimonial3, testimonial4, testimonial5],
+    [name1, name2, name3],
+    [testimonial1, testimonial2, testimonial3],
   );
 
   const adjustedFrame = Math.max(0, frame - INTRO_DURATION);
@@ -147,7 +142,7 @@ export const Main: React.FC<MainProps> = ({
             }}
           >
             {profilePic && profilePic.trim() !== "" ? (
-              <img
+              <Img
                 src={profilePic}
                 alt="Profile"
                 style={{
@@ -302,12 +297,15 @@ export const Main: React.FC<MainProps> = ({
             const entryY = interpolate(positionSpring, [0, 1], [SCROLL_OFFSET, 0]);
 
             if (i === DATA.length - 1) {
-              const exitP = interpolate(frameInSegment, [42, 72], [0, 1], {
+              // Last card (i=2) starts at adjustedFrame = 2*120 = 240.
+              // Outro starts at frame 420 → adjustedFrame 360 → frameInSegment 120.
+              // Fade+lift over last 30 frames of segment: frameInSegment 90 → 120.
+              const exitP = interpolate(frameInSegment, [90, 120], [0, 1], {
                 extrapolateLeft: "clamp",
                 extrapolateRight: "clamp",
               });
               yOffset = entryY - exitP * SCROLL_OFFSET;
-              cardOpacity = interpolate(frameInSegment, [42, 72], [1, 0], {
+              cardOpacity = interpolate(frameInSegment, [90, 120], [1, 0], {
                 extrapolateLeft: "clamp",
                 extrapolateRight: "clamp",
               });
