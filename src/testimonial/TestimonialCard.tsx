@@ -166,7 +166,7 @@ export const TestimonialCard: React.FC<Props> = ({
                 : "none",
             }}
           >
-            <FlowerAvatar index={index} size={80} />
+            <FlowerAvatar index={index} name={testimonial.name} size={80} />
           </div>
 
           {/* Name */}

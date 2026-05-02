@@ -235,8 +235,8 @@ export const Main: React.FC<MainProps> = ({
         </AbsoluteFill>
       )}
 
-      {/* ── 4. Top-left title — zIndex 10 ────────────────────────────────── */}
-      {!showIntro && (
+      {/* ── 4. Top-left title — zIndex 10 (hidden during outro) ────────────── */}
+      {!showIntro && !showOutro && (
         <div
           style={{
             position: "absolute",
@@ -349,7 +349,16 @@ export const Main: React.FC<MainProps> = ({
           );
         })}
 
-      {/* ── 6. Outro slide — zIndex 20 ───────────────────────────────────── */}
+      {/* ── 6. Outro slide — zIndex 20 (with darkening backdrop) ───────────── */}
+      {showOutro && (
+        <AbsoluteFill
+          style={{
+            background: "rgba(0, 0, 0, 0.55)",
+            opacity: outroOpacity,
+            zIndex: 19,
+          }}
+        />
+      )}
       {showOutro && (
         <AbsoluteFill
           style={{
