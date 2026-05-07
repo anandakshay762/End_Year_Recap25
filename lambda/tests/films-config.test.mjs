@@ -99,3 +99,42 @@ test('testimonial-reel eligibility false when fewer than 3', () => {
   assert.equal(f.eligibility({ qualifyingCount: 2 }).ok, false);
   assert.equal(f.eligibility({ qualifyingCount: 3 }).ok, true);
 });
+
+test('april-google-search-v2: eligibilityPrefetch only hits profile-stats once', async () => {
+  const f = films['april-google-search-v2'];
+  assert.equal(typeof f.eligibilityPrefetch, 'function');
+
+  const calls = [];
+  global.fetch = async (url) => {
+    calls.push(String(url));
+    return {
+      ok: true,
+      status: 200,
+      json: async () => ({
+        data: {
+          top_sources: [
+            { source: 'LinkedIn', bookings: 4 },
+            { source: 'Direct', bookings: 2 },
+          ],
+        },
+      }),
+    };
+  };
+  process.env.PROFILE_STATS_API_KEY = 'test';
+
+  const raw = await f.eligibilityPrefetch('tester');
+  assert.deepEqual(raw, { month_sessions: 6 });
+  assert.equal(calls.length, 1, 'should only call profile-stats once (no recap, no prior window)');
+  assert.ok(calls[0].includes('/public/profile-stats'));
+  assert.equal(f.eligibility(raw).ok, true);
+
+  // Empty top_sources → ineligible
+  global.fetch = async () => ({
+    ok: true,
+    status: 200,
+    json: async () => ({ data: { top_sources: [] } }),
+  });
+  const empty = await f.eligibilityPrefetch('tester');
+  assert.deepEqual(empty, { month_sessions: 0 });
+  assert.equal(f.eligibility(empty).ok, false);
+});

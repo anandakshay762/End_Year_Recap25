@@ -20,12 +20,13 @@ ROLE_NAME="loop-launch-orchestrator-role"
 DEPLOY_BUCKET="topmate-lambda-deployments"     # 072528252688-owned, used for the zip staging
 # Single-account: the render Lambda + render bucket both live in 072528252688.
 RENDER_BUCKET="remotionlambda-useast1-unuossiqe1"
-RENDER_FUNCTION="arn:aws:lambda:us-east-1:072528252688:function:remotion-render-4-0-340-mem4096mb-disk2048mb-120sec"
+RENDER_FUNCTION="arn:aws:lambda:us-east-1:072528252688:function:remotion-render-4-0-340-mem4096mb-disk10240mb-120sec"
 SERVE_URL="https://remotionlambda-useast1-unuossiqe1.s3.us-east-1.amazonaws.com/sites/topmate-loop-launch-renderer/index.html"
 
 : "${AWS_ACCESS_KEY_ID:?set 072528252688 admin keys before running}"
 : "${AWS_SECRET_ACCESS_KEY:?}"
 : "${REMOTION_TOKEN:?set REMOTION_TOKEN}"
+: "${PROFILE_STATS_API_KEY:?set PROFILE_STATS_API_KEY (data.analytics.topmate.io x-internal-key)}"
 BACKEND_URL="${BACKEND_URL:-https://api.galactus.run}"
 export AWS_DEFAULT_REGION="$REGION"
 
@@ -87,12 +88,13 @@ aws iam put-role-policy --role-name "$ROLE_NAME" --policy-name orchestrator-perm
       {\"Sid\":\"InvokeRenderLambda\",\"Effect\":\"Allow\",\"Action\":[\"lambda:InvokeFunction\"],\"Resource\":\"$RENDER_FUNCTION\"},
       {\"Sid\":\"WriteCacheKeyLaunchFilms\",\"Effect\":\"Allow\",\"Action\":[\"s3:PutObject\",\"s3:PutObjectAcl\",\"s3:GetObject\"],\"Resource\":\"arn:aws:s3:::$RENDER_BUCKET/launch-films/*\"},
       {\"Sid\":\"WriteCacheKeyTestimonialReels\",\"Effect\":\"Allow\",\"Action\":[\"s3:PutObject\",\"s3:PutObjectAcl\",\"s3:GetObject\"],\"Resource\":\"arn:aws:s3:::$RENDER_BUCKET/testimonial-reels/*\"},
+      {\"Sid\":\"WriteCacheKeyAprilGoogleSearchV2\",\"Effect\":\"Allow\",\"Action\":[\"s3:PutObject\",\"s3:PutObjectAcl\",\"s3:GetObject\"],\"Resource\":\"arn:aws:s3:::$RENDER_BUCKET/april-google-search-v2/*\"},
       {\"Sid\":\"ReadRenderOutputs\",\"Effect\":\"Allow\",\"Action\":[\"s3:GetObject\"],\"Resource\":\"arn:aws:s3:::$RENDER_BUCKET/renders/*\"}
     ]
   }" >/dev/null
 
 # ---------- Lambda function (create or update via S3) ----------
-ENV_VARS="Variables={LAMBDA_FUNCTION=$RENDER_FUNCTION,LAMBDA_REGION=$REGION,LAMBDA_SERVE_URL=$SERVE_URL,LAMBDA_BUCKET=$RENDER_BUCKET,BACKEND_URL=$BACKEND_URL,REMOTION_TOKEN=$REMOTION_TOKEN}"
+ENV_VARS="Variables={LAMBDA_FUNCTION=$RENDER_FUNCTION,LAMBDA_REGION=$REGION,LAMBDA_SERVE_URL=$SERVE_URL,LAMBDA_BUCKET=$RENDER_BUCKET,BACKEND_URL=$BACKEND_URL,REMOTION_TOKEN=$REMOTION_TOKEN,PROFILE_STATS_API_KEY=$PROFILE_STATS_API_KEY}"
 
 if aws lambda get-function --function-name "$FUNCTION_NAME" >/dev/null 2>&1; then
   echo "[deploy] updating function code..."

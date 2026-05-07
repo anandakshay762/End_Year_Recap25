@@ -189,7 +189,12 @@ async function handleEligibility(event, filmKeyName, username) {
   if (!film) return cors({ statusCode: 400, body: { error: 'unknown_film' } });
   if (!username) return cors({ statusCode: 400, body: { error: 'username required' } });
   try {
-    const { raw } = await film.prefetch(username, BACKEND);
+    // Prefer the lightweight eligibility-only prefetch when a film provides one,
+    // so we don't pay for full render props (multiple upstream fetches) just to
+    // answer a yes/no eligibility question.
+    const raw = film.eligibilityPrefetch
+      ? await film.eligibilityPrefetch(username, BACKEND)
+      : (await film.prefetch(username, BACKEND)).raw;
     return cors({ body: film.eligibility(raw) });
   } catch (err) {
     if (err.code === 'USER_NOT_FOUND') {
