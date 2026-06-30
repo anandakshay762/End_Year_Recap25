@@ -8,10 +8,14 @@
     "upgrade": "remotion upgrade"
   },
   "dependencies": {
-    "@remotion/cli": "^4.0.0",
+    "@remotion/cli": "4.0.340",
+    "@remotion/google-fonts": "4.0.340",
+    "@remotion/lambda": "4.0.340",
+    "@remotion/lottie": "4.0.340",
+    "lottie-react": "^2.4.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "remotion": "^4.0.0",
+    "remotion": "4.0.340",
     "zod": "^3.22.3"
   },
   "devDependencies": {

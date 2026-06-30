@@ -1,10 +1,13 @@
 import { Composition } from 'remotion';
+import { ComponentType } from 'react';
 import { MyComposition } from './Composition';
 import { LoopSharingTemplate } from './LoopSharingTemplate';
 import { compositionSchema, loopSharingSchema } from './types';
 import './testimonial/load-testimonial-fonts';
 import { Main as TestimonialMain } from './testimonial/Main';
 import { testimonialReelSchema } from './testimonial/types';
+import { GoogleSearchV2, defaultPropsV2 as aprilGSV2Defaults } from './april/google_search/GoogleSearchV2';
+import { CompositionSchema as aprilCompositionSchema } from './april/schema';
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -79,6 +82,16 @@ export const RemotionRoot: React.FC = () => {
           testimonial1: '', testimonial2: '', testimonial3: '',
           avatar1: '', avatar2: '', avatar3: '',
         }}
+      />
+      <Composition
+        id="april-google-search-v2"
+        component={GoogleSearchV2 as ComponentType<any>}
+        durationInFrames={1200}
+        fps={30}
+        width={1080}
+        height={1920}
+        schema={aprilCompositionSchema}
+        defaultProps={aprilGSV2Defaults}
       />
     </>
   );
